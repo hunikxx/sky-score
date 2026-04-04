@@ -146,6 +146,7 @@
     gap: 6px;
     animation: fadeUp 0.6s ease 0.15s both;
     transition: background 0.8s ease, color 0.5s ease, border-color 0.5s ease;
+    margin-bottom: 24px;
   }
   .btn-gps:hover { border-color: var(--accent); color: var(--accent); }
   .btn-gps svg { width: 16px; height: 16px; }
@@ -279,6 +280,39 @@
     font-family: monospace; font-size: 0.8rem; color: var(--text);
   }
 
+  .lang-bar {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  .lang-btn {
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .lang-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .lang-btn.active { background: var(--btn-bg); color: var(--btn-text); border-color: var(--btn-bg); }
+
+  .site-footer {
+    text-align: center;
+    margin-top: 48px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    letter-spacing: 0.3px;
+    font-weight: 300;
+    transition: color 0.5s ease;
+  }
+
   .error { text-align: center; padding: 24px; color: var(--score-bad); font-size: 0.9rem; }
 
   @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
@@ -316,8 +350,14 @@
 <body>
 <div class="container">
   <header>
+    <div class="lang-bar">
+      <button class="lang-btn active" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="ko">한국어</button>
+      <button class="lang-btn" data-lang="ja">日本語</button>
+      <button class="lang-btn" data-lang="es">ES</button>
+    </div>
     <h1>Sky Score</h1>
-    <p>How photogenic is the sky? Past, present, or future.</p>
+    <p id="subtitle">How photogenic is the sky? Past, present, or future.</p>
   </header>
 
   <div class="search-area">
@@ -326,7 +366,7 @@
   </div>
 
   <div class="datetime-row">
-    <span class="datetime-label">When</span>
+    <span class="datetime-label" id="whenLabel">When</span>
     <input type="date" class="datetime-input" id="dateInput" />
     <input type="time" class="datetime-input" id="timeInput" />
     <button class="btn-now" id="nowBtn">Now</button>
@@ -334,7 +374,7 @@
 
   <button class="btn btn-gps" id="gpsBtn">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
-    Use my location
+    <span id="gpsLabel">Use my location</span>
   </button>
 
   <div id="output"></div>
@@ -345,6 +385,246 @@ const GEOCODE_URL = 'https://geocoding-api.open-meteo.com/v1/search';
 const FORECAST_URL = 'https://api.open-meteo.com/v1/forecast';
 const ARCHIVE_URL = 'https://archive-api.open-meteo.com/v1/archive';
 const $ = id => document.getElementById(id);
+
+/* ---------- i18n ---------- */
+let lang = 'en';
+
+const i18n = {
+  en: {
+    subtitle: 'How photogenic is the sky? Past, present, or future.',
+    placeholder: 'Enter a city or zip code…',
+    score: 'Score',
+    when: 'When',
+    now: 'Now',
+    useLocation: 'Use my location',
+    lookingUp: 'Looking up location…',
+    gettingLocation: 'Getting your location…',
+    fetchingSky: 'Fetching sky data…',
+    notFound: 'Location not found. Try another city or zip code.',
+    lookupError: 'Could not look up location. Please try again.',
+    geoNotSupported: 'Geolocation not supported.',
+    geoDenied: 'Location access denied. Try typing a city or zip code instead.',
+    fetchError: 'Could not fetch weather data. Please try again.',
+    noData: 'No hourly data available for this date.',
+    historical: 'Historical',
+    forecast: 'Forecast',
+    live: 'Live',
+    daytime: 'Daytime',
+    nighttime: 'Nighttime',
+    clearSky: 'Clear Sky',
+    prettyClouds: 'Pretty Clouds',
+    visibility: 'Visibility',
+    conditions: 'Conditions',
+    howScored: "How it's scored",
+    stunning: 'Stunning',
+    stunningDesc: 'Exceptional sky conditions. Grab your camera — this is as good as it gets.',
+    beautiful: 'Beautiful',
+    beautifulDesc: 'Great sky. Clear views with lovely cloud formations.',
+    decent: 'Decent',
+    decentDesc: 'Reasonable sky. Some cloud cover but still worth a look up.',
+    meh: 'Meh',
+    mehDesc: 'Heavy clouds or reduced visibility. The sky is taking a day off.',
+    gloomy: 'Gloomy',
+    gloomyDesc: 'Not great up there — overcast, foggy, or stormy conditions.',
+    methodIntro: '<strong>Sky Score</strong> is a composite of four sub-scores:',
+    methodClear: '<strong>Clear Sky (40%)</strong> — Cloud cover percentage. 20–30% scores highest — scattered clouds add visual interest.',
+    methodClouds: '<strong>Pretty Clouds (25%)</strong> — High & mid-altitude clouds are dramatic and photogenic. Low clouds are penalized.',
+    methodVis: '<strong>Visibility (20%)</strong> — Higher visibility = crisper, more vivid skies.',
+    methodCond: '<strong>Conditions (15%)</strong> — Rain, fog, or storms reduce the score.',
+    methodSrcLive: '<strong>Live & forecast</strong> (up to 16 days) — Open-Meteo Forecast API',
+    methodSrcRecent: '<strong>Recent past</strong> (≤3 months) — Open-Meteo Forecast API historical mode',
+    methodSrcOld: '<strong>Older history</strong> (back to 1940) — Open-Meteo Archive API (ERA5 reanalysis)',
+    methodNoKey: 'No API key required. All data from <strong>Open-Meteo</strong>.',
+    dataSources: 'Data sources:',
+    footer: 'Inspired by an idea from Jessica',
+    weather: {0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',48:'Rime fog',51:'Light drizzle',53:'Moderate drizzle',55:'Dense drizzle',56:'Freezing drizzle',57:'Dense freezing drizzle',61:'Slight rain',63:'Moderate rain',65:'Heavy rain',66:'Freezing rain',67:'Heavy freezing rain',71:'Slight snow',73:'Moderate snow',75:'Heavy snow',77:'Snow grains',80:'Light rain showers',81:'Moderate rain showers',82:'Violent rain showers',85:'Light snow showers',86:'Heavy snow showers',95:'Thunderstorm',96:'Thunderstorm w/ hail',99:'Thunderstorm w/ heavy hail'},
+    months: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    at: 'at',
+    forecastLimit: 'Forecast only available up to 16 days ahead.',
+    historyError: 'Could not fetch historical data.',
+    apiError: 'API error.',
+  },
+  ko: {
+    subtitle: '하늘이 얼마나 아름다울까요? 과거, 현재, 미래.',
+    placeholder: '도시 또는 우편번호 입력…',
+    score: '점수',
+    when: '시간',
+    now: '지금',
+    useLocation: '내 위치 사용',
+    lookingUp: '위치 검색 중…',
+    gettingLocation: '위치 확인 중…',
+    fetchingSky: '하늘 데이터 가져오는 중…',
+    notFound: '위치를 찾을 수 없습니다. 다른 도시나 우편번호를 시도해보세요.',
+    lookupError: '위치를 검색할 수 없습니다. 다시 시도해주세요.',
+    geoNotSupported: '위치 서비스가 지원되지 않습니다.',
+    geoDenied: '위치 접근이 거부되었습니다. 도시나 우편번호를 입력해보세요.',
+    fetchError: '날씨 데이터를 가져올 수 없습니다. 다시 시도해주세요.',
+    noData: '이 날짜의 시간별 데이터가 없습니다.',
+    historical: '과거',
+    forecast: '예보',
+    live: '실시간',
+    daytime: '낮',
+    nighttime: '밤',
+    clearSky: '맑은 하늘',
+    prettyClouds: '예쁜 구름',
+    visibility: '가시거리',
+    conditions: '기상 조건',
+    howScored: '점수 산정 방법',
+    stunning: '환상적',
+    stunningDesc: '최고의 하늘 상태입니다. 카메라를 꺼내세요!',
+    beautiful: '아름다운',
+    beautifulDesc: '멋진 하늘. 맑은 시야와 아름다운 구름.',
+    decent: '괜찮은',
+    decentDesc: '적당한 하늘. 구름이 있지만 올려다볼 만합니다.',
+    meh: '별로',
+    mehDesc: '구름이 많거나 시야가 좋지 않습니다. 하늘이 쉬는 날.',
+    gloomy: '우울한',
+    gloomyDesc: '흐리거나 안개가 끼거나 폭풍우가 있는 상태입니다.',
+    methodIntro: '<strong>Sky Score</strong>는 네 가지 하위 점수의 합산입니다:',
+    methodClear: '<strong>맑은 하늘 (40%)</strong> — 구름 비율. 20–30%가 가장 높은 점수 — 적당한 구름이 시각적 흥미를 더합니다.',
+    methodClouds: '<strong>예쁜 구름 (25%)</strong> — 높은 고도의 구름은 드라마틱하고 사진에 잘 나옵니다. 낮은 구름은 감점.',
+    methodVis: '<strong>가시거리 (20%)</strong> — 높은 가시거리 = 더 선명하고 생생한 하늘.',
+    methodCond: '<strong>기상 조건 (15%)</strong> — 비, 안개, 폭풍은 점수를 낮춥니다.',
+    methodSrcLive: '<strong>실시간 & 예보</strong> (최대 16일) — Open-Meteo Forecast API',
+    methodSrcRecent: '<strong>최근 과거</strong> (≤3개월) — Open-Meteo Forecast API 과거 모드',
+    methodSrcOld: '<strong>오래된 기록</strong> (1940년까지) — Open-Meteo Archive API (ERA5)',
+    methodNoKey: 'API 키 불필요. 모든 데이터는 <strong>Open-Meteo</strong> 제공.',
+    dataSources: '데이터 출처:',
+    footer: 'Jessica의 아이디어에서 영감을 받았습니다',
+    weather: {0:'맑음',1:'대체로 맑음',2:'부분 흐림',3:'흐림',45:'안개',48:'서리 안개',51:'가벼운 이슬비',53:'이슬비',55:'강한 이슬비',56:'결빙 이슬비',57:'강한 결빙 이슬비',61:'약한 비',63:'보통 비',65:'강한 비',66:'결빙 비',67:'강한 결빙 비',71:'약한 눈',73:'보통 눈',75:'강한 눈',77:'싸락눈',80:'약한 소나기',81:'보통 소나기',82:'강한 소나기',85:'약한 눈 소나기',86:'강한 눈 소나기',95:'뇌우',96:'우박 동반 뇌우',99:'강한 우박 동반 뇌우'},
+    months: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+    at: '',
+    forecastLimit: '예보는 최대 16일 후까지만 가능합니다.',
+    historyError: '과거 데이터를 가져올 수 없습니다.',
+    apiError: 'API 오류.',
+  },
+  ja: {
+    subtitle: '空はどれくらいフォトジェニック？過去・現在・未来。',
+    placeholder: '都市名または郵便番号を入力…',
+    score: 'スコア',
+    when: '日時',
+    now: '今',
+    useLocation: '現在地を使用',
+    lookingUp: '場所を検索中…',
+    gettingLocation: '現在地を取得中…',
+    fetchingSky: '空のデータを取得中…',
+    notFound: '場所が見つかりません。別の都市名や郵便番号をお試しください。',
+    lookupError: '場所を検索できませんでした。もう一度お試しください。',
+    geoNotSupported: '位置情報がサポートされていません。',
+    geoDenied: '位置情報へのアクセスが拒否されました。都市名や郵便番号を入力してください。',
+    fetchError: '天気データを取得できませんでした。もう一度お試しください。',
+    noData: 'この日の時間別データがありません。',
+    historical: '過去',
+    forecast: '予報',
+    live: 'リアルタイム',
+    daytime: '昼間',
+    nighttime: '夜間',
+    clearSky: '澄んだ空',
+    prettyClouds: '美しい雲',
+    visibility: '視界',
+    conditions: '天候',
+    howScored: 'スコアの算出方法',
+    stunning: '圧巻',
+    stunningDesc: '最高の空の状態です。カメラを持って外へ！',
+    beautiful: '美しい',
+    beautifulDesc: '素晴らしい空。澄んだ視界と美しい雲の形。',
+    decent: 'まずまず',
+    decentDesc: 'そこそこの空。雲はありますが、見上げる価値はあります。',
+    meh: 'いまいち',
+    mehDesc: '雲が多いか視界が悪い。空はお休み中。',
+    gloomy: '暗い',
+    gloomyDesc: '曇り、霧、または嵐の状態です。',
+    methodIntro: '<strong>Sky Score</strong>は4つのサブスコアの合成です：',
+    methodClear: '<strong>澄んだ空 (40%)</strong> — 雲量。20–30%が最高点 — 適度な雲が視覚的な面白さを加えます。',
+    methodClouds: '<strong>美しい雲 (25%)</strong> — 高高度・中高度の雲はドラマチックでフォトジェニック。低い雲は減点。',
+    methodVis: '<strong>視界 (20%)</strong> — 高い視界 = よりクリアで鮮やかな空。',
+    methodCond: '<strong>天候 (15%)</strong> — 雨、霧、嵐はスコアを下げます。',
+    methodSrcLive: '<strong>リアルタイム＆予報</strong>（最大16日）— Open-Meteo Forecast API',
+    methodSrcRecent: '<strong>最近の過去</strong>（≤3ヶ月）— Open-Meteo Forecast API 過去モード',
+    methodSrcOld: '<strong>過去の記録</strong>（1940年まで）— Open-Meteo Archive API（ERA5）',
+    methodNoKey: 'APIキー不要。すべてのデータは<strong>Open-Meteo</strong>から。',
+    dataSources: 'データソース：',
+    footer: 'Jessicaのアイデアからインスピレーションを得ました',
+    weather: {0:'快晴',1:'ほぼ快晴',2:'一部曇り',3:'曇り',45:'霧',48:'着氷性霧',51:'弱い霧雨',53:'霧雨',55:'強い霧雨',56:'着氷性霧雨',57:'強い着氷性霧雨',61:'弱い雨',63:'雨',65:'強い雨',66:'着氷性の雨',67:'強い着氷性の雨',71:'弱い雪',73:'雪',75:'強い雪',77:'雪あられ',80:'弱いにわか雨',81:'にわか雨',82:'激しいにわか雨',85:'弱いにわか雪',86:'強いにわか雪',95:'雷雨',96:'雹を伴う雷雨',99:'強い雹を伴う雷雨'},
+    months: ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+    at: '',
+    forecastLimit: '予報は最大16日先まで利用可能です。',
+    historyError: '過去のデータを取得できませんでした。',
+    apiError: 'APIエラー。',
+  },
+  es: {
+    subtitle: '¿Qué tan fotogénico está el cielo? Pasado, presente o futuro.',
+    placeholder: 'Ingresa una ciudad o código postal…',
+    score: 'Puntaje',
+    when: 'Cuándo',
+    now: 'Ahora',
+    useLocation: 'Usar mi ubicación',
+    lookingUp: 'Buscando ubicación…',
+    gettingLocation: 'Obteniendo tu ubicación…',
+    fetchingSky: 'Obteniendo datos del cielo…',
+    notFound: 'Ubicación no encontrada. Intenta con otra ciudad o código postal.',
+    lookupError: 'No se pudo buscar la ubicación. Inténtalo de nuevo.',
+    geoNotSupported: 'Geolocalización no soportada.',
+    geoDenied: 'Acceso a ubicación denegado. Intenta escribir una ciudad o código postal.',
+    fetchError: 'No se pudieron obtener datos meteorológicos. Inténtalo de nuevo.',
+    noData: 'No hay datos horarios disponibles para esta fecha.',
+    historical: 'Histórico',
+    forecast: 'Pronóstico',
+    live: 'En vivo',
+    daytime: 'Día',
+    nighttime: 'Noche',
+    clearSky: 'Cielo despejado',
+    prettyClouds: 'Nubes bonitas',
+    visibility: 'Visibilidad',
+    conditions: 'Condiciones',
+    howScored: 'Cómo se calcula',
+    stunning: 'Impresionante',
+    stunningDesc: 'Condiciones excepcionales del cielo. ¡Toma tu cámara!',
+    beautiful: 'Hermoso',
+    beautifulDesc: 'Gran cielo. Vistas despejadas con hermosas formaciones de nubes.',
+    decent: 'Aceptable',
+    decentDesc: 'Cielo razonable. Algo de nubes pero aún vale la pena mirar.',
+    meh: 'Regular',
+    mehDesc: 'Muchas nubes o poca visibilidad. El cielo se tomó el día libre.',
+    gloomy: 'Sombrío',
+    gloomyDesc: 'Nublado, con niebla o condiciones de tormenta.',
+    methodIntro: '<strong>Sky Score</strong> es un compuesto de cuatro subpuntajes:',
+    methodClear: '<strong>Cielo despejado (40%)</strong> — Porcentaje de nubes. 20–30% obtiene la puntuación más alta — las nubes dispersas añaden interés visual.',
+    methodClouds: '<strong>Nubes bonitas (25%)</strong> — Las nubes altas y medias son dramáticas y fotogénicas. Las nubes bajas se penalizan.',
+    methodVis: '<strong>Visibilidad (20%)</strong> — Mayor visibilidad = cielos más nítidos y vívidos.',
+    methodCond: '<strong>Condiciones (15%)</strong> — Lluvia, niebla o tormentas reducen el puntaje.',
+    methodSrcLive: '<strong>En vivo y pronóstico</strong> (hasta 16 días) — Open-Meteo Forecast API',
+    methodSrcRecent: '<strong>Pasado reciente</strong> (≤3 meses) — Open-Meteo Forecast API modo histórico',
+    methodSrcOld: '<strong>Historia antigua</strong> (hasta 1940) — Open-Meteo Archive API (ERA5)',
+    methodNoKey: 'No se requiere clave API. Todos los datos de <strong>Open-Meteo</strong>.',
+    dataSources: 'Fuentes de datos:',
+    footer: 'Inspirado en una idea de Jessica',
+    weather: {0:'Cielo despejado',1:'Mayormente despejado',2:'Parcialmente nublado',3:'Nublado',45:'Niebla',48:'Niebla con escarcha',51:'Llovizna ligera',53:'Llovizna moderada',55:'Llovizna densa',56:'Llovizna helada',57:'Llovizna helada densa',61:'Lluvia ligera',63:'Lluvia moderada',65:'Lluvia fuerte',66:'Lluvia helada',67:'Lluvia helada fuerte',71:'Nevada ligera',73:'Nevada moderada',75:'Nevada fuerte',77:'Granizo fino',80:'Chubascos ligeros',81:'Chubascos moderados',82:'Chubascos violentos',85:'Chubascos de nieve ligeros',86:'Chubascos de nieve fuertes',95:'Tormenta',96:'Tormenta con granizo',99:'Tormenta con granizo fuerte'},
+    months: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+    at: 'a las',
+    forecastLimit: 'El pronóstico solo está disponible hasta 16 días.',
+    historyError: 'No se pudieron obtener datos históricos.',
+    apiError: 'Error de API.',
+  }
+};
+
+function t(key) { return i18n[lang][key] || i18n.en[key] || key; }
+
+function setLang(newLang) {
+  lang = newLang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  $('subtitle').textContent = t('subtitle');
+  $('cityInput').placeholder = t('placeholder');
+  $('searchBtn').textContent = t('score');
+  $('whenLabel').textContent = t('when');
+  $('nowBtn').textContent = t('now');
+  $('gpsLabel').textContent = t('useLocation');
+  $('footerText').textContent = t('footer');
+}
+
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => setLang(btn.dataset.lang));
+});
 
 function setNow() {
   const now = new Date();
@@ -361,16 +641,13 @@ $('cityInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('sear
 $('searchBtn').addEventListener('click', async () => {
   const input = $('cityInput').value.trim();
   if (!input) return;
-  showStatus('Looking up location…');
+  showStatus(t('lookingUp'));
   try {
-    // Detect if input looks like a zip/postal code (US 5-digit, US+4, or other numeric codes)
     const isZip = /^\d{4,10}(-\d{1,4})?$/.test(input);
 
     if (isZip) {
-      // Use zip code geocoding via api.zippopotam.us then resolve coords
       const zipRes = await fetch(`https://api.zippopotam.us/us/${input.split('-')[0]}`);
       if (!zipRes.ok) {
-        // Try Open-Meteo as fallback with the number as a search term
         return await searchByName(input);
       }
       const zipData = await zipRes.json();
@@ -382,27 +659,26 @@ $('searchBtn').addEventListener('click', async () => {
     } else {
       await searchByName(input);
     }
-  } catch (e) { showError('Could not look up location. Please try again.'); }
+  } catch (e) { showError(t('lookupError')); }
 });
 
 async function searchByName(city) {
   const geo = await fetch(`${GEOCODE_URL}?name=${encodeURIComponent(city)}&count=1&language=en`).then(r => r.json());
-  if (!geo.results?.length) return showError('Location not found. Try another city or zip code.');
+  if (!geo.results?.length) return showError(t('notFound'));
   const loc = geo.results[0];
   const name = `${loc.name}${loc.admin1 ? ', ' + loc.admin1 : ''}${loc.country ? ', ' + loc.country : ''}`;
   await fetchWeather(loc.latitude, loc.longitude, name);
 }
 
 $('gpsBtn').addEventListener('click', () => {
-  if (!navigator.geolocation) return showError('Geolocation not supported.');
-  showStatus('Getting your location…');
+  if (!navigator.geolocation) return showError(t('geoNotSupported'));
+  showStatus(t('gettingLocation'));
   navigator.geolocation.getCurrentPosition(
     async pos => {
       const lat = pos.coords.latitude;
       const lon = pos.coords.longitude;
       let name = `${lat.toFixed(2)}°, ${lon.toFixed(2)}°`;
       try {
-        // Reverse geocode via Nominatim (free, no key)
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=14&addressdetails=1`);
         const geo = await res.json();
         if (geo && geo.address) {
@@ -416,7 +692,7 @@ $('gpsBtn').addEventListener('click', () => {
       } catch (e) { /* fall back to coords */ }
       await fetchWeather(lat, lon, name);
     },
-    () => showError('Location access denied. Try typing a city or zip code instead.')
+    () => showError(t('geoDenied'))
   );
 });
 
@@ -436,7 +712,7 @@ function getTimeMode(target) {
 }
 
 async function fetchWeather(lat, lon, name) {
-  showStatus('Fetching sky data…');
+  showStatus(t('fetchingSky'));
   const target = getSelectedDateTime();
   const mode = getTimeMode(target);
   const dateStr = localDateStr(target);
@@ -448,14 +724,14 @@ async function fetchWeather(lat, lon, name) {
     if (mode === 'now') {
       const params = `latitude=${lat}&longitude=${lon}&current=cloud_cover,weather_code,visibility,is_day&hourly=${hourlyVars}&forecast_hours=6&timezone=auto`;
       data = await fetch(`${FORECAST_URL}?${params}`).then(r => r.json());
-      if (data.error) return showError(data.reason || 'API error.');
+      if (data.error) return showError(data.reason || t('apiError'));
       return renderResult(data, name, lat, lon, target, mode, true);
     }
 
     if (mode === 'future') {
       const params = `latitude=${lat}&longitude=${lon}&hourly=${hourlyVars}&start_date=${dateStr}&end_date=${dateStr}&timezone=auto`;
       data = await fetch(`${FORECAST_URL}?${params}`).then(r => r.json());
-      if (data.error) return showError(data.reason || 'Forecast only available up to 16 days ahead.');
+      if (data.error) return showError(data.reason || t('forecastLimit'));
       return renderResult(data, name, lat, lon, target, mode, false);
     }
 
@@ -464,12 +740,12 @@ async function fetchWeather(lat, lon, name) {
     const apiUrl = daysDiff <= 92 ? FORECAST_URL : ARCHIVE_URL;
     const params = `latitude=${lat}&longitude=${lon}&hourly=${hourlyVars}&start_date=${dateStr}&end_date=${dateStr}&timezone=auto`;
     data = await fetch(`${apiUrl}?${params}`).then(r => r.json());
-    if (data.error) return showError(data.reason || 'Could not fetch historical data.');
+    if (data.error) return showError(data.reason || t('historyError'));
     renderResult(data, name, lat, lon, target, mode, false);
 
   } catch (e) {
     console.error(e);
-    showError('Could not fetch weather data. Please try again.');
+    showError(t('fetchError'));
   }
 }
 
@@ -545,27 +821,22 @@ function avg(a) { if (!a||!a.length) return 0; return a.reduce((s,v)=>s+(v||0),0
 /* ---------- RENDERING ---------- */
 
 function getVerdict(s) {
-  if (s >= 85) return { label:'Stunning', desc:'Exceptional sky conditions. Grab your camera — this is as good as it gets.', color:'var(--score-excellent)' };
-  if (s >= 70) return { label:'Beautiful', desc:'Great sky. Clear views with lovely cloud formations.', color:'var(--score-good)' };
-  if (s >= 50) return { label:'Decent', desc:'Reasonable sky. Some cloud cover but still worth a look up.', color:'var(--score-fair)' };
-  if (s >= 30) return { label:'Meh', desc:'Heavy clouds or reduced visibility. The sky is taking a day off.', color:'var(--score-poor)' };
-  return { label:'Gloomy', desc:'Not great up there — overcast, foggy, or stormy conditions.', color:'var(--score-bad)' };
+  if (s >= 85) return { label: t('stunning'), desc: t('stunningDesc'), color:'var(--score-excellent)' };
+  if (s >= 70) return { label: t('beautiful'), desc: t('beautifulDesc'), color:'var(--score-good)' };
+  if (s >= 50) return { label: t('decent'), desc: t('decentDesc'), color:'var(--score-fair)' };
+  if (s >= 30) return { label: t('meh'), desc: t('mehDesc'), color:'var(--score-poor)' };
+  return { label: t('gloomy'), desc: t('gloomyDesc'), color:'var(--score-bad)' };
 }
 
 function weatherCodeLabel(c) {
-  return ({0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',48:'Rime fog',
-    51:'Light drizzle',53:'Moderate drizzle',55:'Dense drizzle',56:'Freezing drizzle',57:'Dense freezing drizzle',
-    61:'Slight rain',63:'Moderate rain',65:'Heavy rain',66:'Freezing rain',67:'Heavy freezing rain',
-    71:'Slight snow',73:'Moderate snow',75:'Heavy snow',77:'Snow grains',
-    80:'Light rain showers',81:'Moderate rain showers',82:'Violent rain showers',
-    85:'Light snow showers',86:'Heavy snow showers',
-    95:'Thunderstorm',96:'Thunderstorm w/ hail',99:'Thunderstorm w/ heavy hail'})[c] || `Code ${c}`;
+  return (i18n[lang].weather[c]) || `Code ${c}`;
 }
 
 function fmtDate(d) {
-  const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const M = i18n[lang].months;
   let h = d.getHours(), ap = h >= 12 ? 'PM' : 'AM'; h = h%12||12;
-  return `${M[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} at ${h}:${pad(d.getMinutes())} ${ap}`;
+  const atWord = t('at');
+  return `${M[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} ${atWord} ${h}:${pad(d.getMinutes())} ${ap}`;
 }
 
 function renderResult(data, name, lat, lon, targetDate, mode, useCurrent) {
@@ -574,7 +845,7 @@ function renderResult(data, name, lat, lon, targetDate, mode, useCurrent) {
     scores = computeScoreFromCurrent(data);
   } else {
     const h = data.hourly;
-    if (!h || !h.time || !h.time.length) return showError('No hourly data available for this date.');
+    if (!h || !h.time || !h.time.length) return showError(t('noData'));
     const tH = targetDate.getHours();
     let bI = 0, bD = Infinity;
     for (let i = 0; i < h.time.length; i++) {
@@ -587,7 +858,7 @@ function renderResult(data, name, lat, lon, targetDate, mode, useCurrent) {
   const v = getVerdict(scores.total);
   const circ = 2 * Math.PI * 46;
   const off = circ - (scores.total / 100) * circ;
-  const modeLabel = mode === 'past' ? 'Historical' : mode === 'future' ? 'Forecast' : 'Live';
+  const modeLabel = mode === 'past' ? t('historical') : mode === 'future' ? t('forecast') : t('live');
 
   setBackground(scores.total, scores.raw.isDay);
 
@@ -595,7 +866,7 @@ function renderResult(data, name, lat, lon, targetDate, mode, useCurrent) {
     <div class="result-card">
       <div class="location-name">${name} <span class="time-badge ${mode}">${modeLabel}</span></div>
       <div class="location-meta">
-        ${lat.toFixed(2)}°, ${lon.toFixed(2)}° · ${weatherCodeLabel(scores.raw.weatherCode)} · ${scores.raw.isDay ? 'Daytime' : 'Nighttime'}<br>
+        ${lat.toFixed(2)}°, ${lon.toFixed(2)}° · ${weatherCodeLabel(scores.raw.weatherCode)} · ${scores.raw.isDay ? t('daytime') : t('nighttime')}<br>
         ${fmtDate(targetDate)}
       </div>
 
@@ -615,30 +886,30 @@ function renderResult(data, name, lat, lon, targetDate, mode, useCurrent) {
       </div>
 
       <div class="metrics">
-        ${metric('Clear Sky', scores.clearSky)}
-        ${metric('Pretty Clouds', scores.prettyClouds)}
-        ${metric('Visibility', scores.visibility)}
-        ${metric('Conditions', scores.conditions)}
+        ${metric(t('clearSky'), scores.clearSky)}
+        ${metric(t('prettyClouds'), scores.prettyClouds)}
+        ${metric(t('visibility'), scores.visibility)}
+        ${metric(t('conditions'), scores.conditions)}
       </div>
     </div>
 
     <div class="methodology">
       <button class="methodology-toggle" onclick="toggleMethodology(this)">
-        How it's scored
+        ${t('howScored')}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
       <div class="methodology-content" id="methodContent">
-        <strong>Sky Score</strong> is a composite of four sub-scores:<br><br>
-        <strong>Clear Sky (40%)</strong> — Cloud cover percentage. 20–30% scores highest — scattered clouds add visual interest.<br><br>
-        <strong>Pretty Clouds (25%)</strong> — High & mid-altitude clouds are dramatic and photogenic. Low clouds are penalized.<br><br>
-        <strong>Visibility (20%)</strong> — Higher visibility = crisper, more vivid skies.<br><br>
-        <strong>Conditions (15%)</strong> — Rain, fog, or storms reduce the score.<br><br>
+        ${t('methodIntro')}<br><br>
+        ${t('methodClear')}<br><br>
+        ${t('methodClouds')}<br><br>
+        ${t('methodVis')}<br><br>
+        ${t('methodCond')}<br><br>
         <div class="formula">Score = (ClearSky × 0.40) + (PrettyClouds × 0.25) + (Visibility × 0.20) + (Conditions × 0.15)</div>
-        <strong>Data sources:</strong><br>
-        • <strong>Live & forecast</strong> (up to 16 days) — Open-Meteo Forecast API<br>
-        • <strong>Recent past</strong> (≤3 months) — Open-Meteo Forecast API historical mode<br>
-        • <strong>Older history</strong> (back to 1940) — Open-Meteo Archive API (ERA5 reanalysis)<br><br>
-        No API key required. All data from <strong>Open-Meteo</strong>.
+        <strong>${t('dataSources')}</strong><br>
+        • ${t('methodSrcLive')}<br>
+        • ${t('methodSrcRecent')}<br>
+        • ${t('methodSrcOld')}<br><br>
+        ${t('methodNoKey')}
       </div>
     </div>
   `;
