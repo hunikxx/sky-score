@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sky Score</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F6F4F0;
+    --text: #1A1A1A;
+    --text-muted: #7A7A7A;
+    --accent: #3B6BCC;
+    --card: #FFFFFF;
+    --border: #E8E5E0;
+    --score-excellent: #2D8F5E;
+    --score-good: #5BA35B;
+    --score-fair: #C9A832;
+    --score-poor: #C27A3A;
+    --score-bad: #A14B4B;
+    --radius: 16px;
+    --shadow: 0 2px 20px rgba(0,0,0,0.04);
+    --btn-bg: #1A1A1A;
+    --btn-text: #F6F4F0;
+    --metric-bg: #F0EDE8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    transition: background 1s ease, color 0.5s ease;
+  }
+
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 60px 24px 80px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 3rem;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+    color: var(--text);
+    transition: color 0.5s ease;
+  }
+
+  header p {
+    color: var(--text-muted);
+    font-weight: 300;
+    font-size: 1.05rem;
+    letter-spacing: 0.3px;
+  }
+
+  .search-area {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    animation: fadeUp 0.6s ease 0.1s both;
+  }
+
+  .search-input, .datetime-input {
+    flex: 1;
+    padding: 14px 20px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    background: var(--card);
+    color: var(--text);
+    outline: none;
+    transition: border 0.2s, background 0.8s ease, color 0.5s ease;
+  }
+  .search-input:focus, .datetime-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: #B5B5B5; }
+
+  .datetime-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    animation: fadeUp 0.6s ease 0.12s both;
+    align-items: center;
+  }
+
+  .datetime-input { flex: 1; min-width: 0; }
+
+  .datetime-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .btn-now {
+    padding: 10px 14px;
+    background: var(--card);
+    color: var(--text-muted);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s, background 0.8s ease;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .btn-now:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn {
+    padding: 14px 22px;
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-primary { background: var(--btn-bg); color: var(--btn-text); transition: all 0.2s, background 0.8s ease; }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  .btn-gps {
+    background: var(--card);
+    color: var(--text);
+    border: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    animation: fadeUp 0.6s ease 0.15s both;
+    transition: background 0.8s ease, color 0.5s ease, border-color 0.5s ease;
+  }
+  .btn-gps:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-gps svg { width: 16px; height: 16px; }
+
+  .time-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-left: 8px;
+    vertical-align: middle;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .time-badge.past { background: #EDE7F6; color: #5E35B1; }
+  .time-badge.now { background: #E8F5E9; color: #2E7D32; }
+  .time-badge.future { background: #E3F2FD; color: #1565C0; }
+
+  .status {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 300;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  .result-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 40px 32px;
+    animation: fadeUp 0.5s ease both;
+    border: 1px solid var(--border);
+    transition: background 0.8s ease, border-color 0.5s ease;
+  }
+
+  .location-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.6rem;
+    margin-bottom: 4px;
+    letter-spacing: -0.5px;
+  }
+
+  .location-meta {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 300;
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  .score-section {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    margin-bottom: 36px;
+    padding-bottom: 36px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .score-ring {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    flex-shrink: 0;
+  }
+
+  .score-ring svg { width: 110px; height: 110px; transform: rotate(-90deg); }
+  .score-ring .bg-ring { fill: none; stroke: var(--border); stroke-width: 6; }
+  .score-ring .fg-ring { fill: none; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 1s ease, stroke 0.5s ease; }
+
+  .score-number {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    letter-spacing: -1px;
+  }
+
+  .score-info h3 { font-family: 'DM Serif Display', serif; font-size: 1.3rem; margin-bottom: 6px; }
+  .score-info p { color: var(--text-muted); font-size: 0.88rem; font-weight: 300; line-height: 1.6; }
+
+  .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .metric { padding: 16px; background: var(--metric-bg); border-radius: 12px; transition: background 0.8s ease; }
+  .metric-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 6px; }
+  .metric-value { font-size: 1.25rem; font-weight: 500; letter-spacing: -0.3px; }
+  .metric-bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+  .metric-bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
+
+  .methodology { margin-top: 40px; animation: fadeUp 0.5s ease 0.15s both; }
+
+  .methodology-toggle {
+    display: flex; align-items: center; gap: 8px;
+    background: none; border: none;
+    font-family: 'DM Sans', sans-serif; font-size: 0.82rem;
+    color: var(--text-muted); cursor: pointer;
+    letter-spacing: 0.5px; text-transform: uppercase; padding: 0;
+  }
+  .methodology-toggle:hover { color: var(--text); }
+  .methodology-toggle svg { width: 14px; height: 14px; transition: transform 0.3s; }
+
+  .methodology-content {
+    display: none; margin-top: 16px; padding: 24px;
+    background: var(--card); border-radius: var(--radius);
+    border: 1px solid var(--border); font-size: 0.85rem;
+    color: var(--text-muted); line-height: 1.8; font-weight: 300;
+  }
+  .methodology-content.open { display: block; animation: fadeUp 0.3s ease; }
+  .methodology-toggle.open svg { transform: rotate(180deg); }
+  .methodology-content strong { color: var(--text); font-weight: 500; }
+
+  .methodology-content .formula {
+    margin: 12px 0; padding: 12px 16px;
+    background: var(--metric-bg); border-radius: 8px;
+    font-family: monospace; font-size: 0.8rem; color: var(--text);
+  }
+
+  .error { text-align: center; padding: 24px; color: var(--score-bad); font-size: 0.9rem; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 500px) {
+    .container { padding: 40px 16px 60px; }
+    header h1 { font-size: 2.2rem; }
+    .search-area { flex-direction: column; }
+    .search-input, .datetime-input { font-size: 16px; } /* prevents iOS zoom on focus */
+    .datetime-row {
+      flex-wrap: wrap;
+    }
+    .datetime-label { width: 100%; margin-bottom: -4px; }
+    .datetime-input { min-height: 48px; }
+    .btn { min-height: 48px; }
+    .btn-now { min-height: 44px; }
+    .btn-gps { min-height: 48px; justify-content: center; width: 100%; }
+    .score-section { flex-direction: column; text-align: center; gap: 20px; }
+    .metrics { grid-template-columns: 1fr; }
+    .result-card { padding: 28px 20px; }
+    .location-name { font-size: 1.35rem; line-height: 1.4; }
+    .time-badge { display: block; margin-left: 0; margin-top: 6px; width: fit-content; }
+    .methodology-content { padding: 18px 16px; }
+  }
+
+  @media (max-width: 360px) {
+    header h1 { font-size: 1.9rem; }
+    .score-ring { width: 90px; height: 90px; }
+    .score-ring svg { width: 90px; height: 90px; }
+    .score-number { font-size: 1.6rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Sky Score</h1>
+    <p>How photogenic is the sky? Past, present, or future.</p>
+  </header>
+
+  <div class="search-area">
+    <input type="text" class="search-input" id="cityInput" placeholder="Enter a city or zip code…" />
+    <button class="btn btn-primary" id="searchBtn">Score</button>
+  </div>
+
+  <div class="datetime-row">
+    <span class="datetime-label">When</span>
+    <input type="date" class="datetime-input" id="dateInput" />
+    <input type="time" class="datetime-input" id="timeInput" />
+    <button class="btn-now" id="nowBtn">Now</button>
+  </div>
+
+  <button class="btn btn-gps" id="gpsBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+    Use my location
+  </button>
+
+  <div id="output"></div>
+</div>
+
+<script>
+const GEOCODE_URL = 'https://geocoding-api.open-meteo.com/v1/search';
+const FORECAST_URL = 'https://api.open-meteo.com/v1/forecast';
+const ARCHIVE_URL = 'https://archive-api.open-meteo.com/v1/archive';
+const $ = id => document.getElementById(id);
+
+function setNow() {
+  const now = new Date();
+  $('dateInput').value = localDateStr(now);
+  $('timeInput').value = pad(now.getHours()) + ':' + pad(now.getMinutes());
+}
+function pad(n) { return String(n).padStart(2, '0'); }
+function localDateStr(d) { return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
+setNow();
+
+$('nowBtn').addEventListener('click', setNow);
+$('cityInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('searchBtn').click(); });
+
+$('searchBtn').addEventListener('click', async () => {
+  const input = $('cityInput').value.trim();
+  if (!input) return;
+  showStatus('Looking up location…');
+  try {
+    // Detect if input looks like a zip/postal code (US 5-digit, US+4, or other numeric codes)
+    const isZip = /^\d{4,10}(-\d{1,4})?$/.test(input);
+
+    if (isZip) {
+      // Use zip code geocoding via api.zippopotam.us then resolve coords
+      const zipRes = await fetch(`https://api.zippopotam.us/us/${input.split('-')[0]}`);
+      if (!zipRes.ok) {
+        // Try Open-Meteo as fallback with the number as a search term
+        return await searchByName(input);
+      }
+      const zipData = await zipRes.json();
+      const place = zipData.places[0];
+      const lat = parseFloat(place.latitude);
+      const lon = parseFloat(place.longitude);
+      const name = `${place['place name']}, ${place['state abbreviation']} ${input}`;
+      await fetchWeather(lat, lon, name);
+    } else {
+      await searchByName(input);
+    }
+  } catch (e) { showError('Could not look up location. Please try again.'); }
+});
+
+async function searchByName(city) {
+  const geo = await fetch(`${GEOCODE_URL}?name=${encodeURIComponent(city)}&count=1&language=en`).then(r => r.json());
+  if (!geo.results?.length) return showError('Location not found. Try another city or zip code.');
+  const loc = geo.results[0];
+  const name = `${loc.name}${loc.admin1 ? ', ' + loc.admin1 : ''}${loc.country ? ', ' + loc.country : ''}`;
+  await fetchWeather(loc.latitude, loc.longitude, name);
+}
+
+$('gpsBtn').addEventListener('click', () => {
+  if (!navigator.geolocation) return showError('Geolocation not supported.');
+  showStatus('Getting your location…');
+  navigator.geolocation.getCurrentPosition(
+    async pos => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+      let name = `${lat.toFixed(2)}°, ${lon.toFixed(2)}°`;
+      try {
+        // Reverse geocode via Nominatim (free, no key)
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=14&addressdetails=1`);
+        const geo = await res.json();
+        if (geo && geo.address) {
+          const a = geo.address;
+          const city = a.city || a.town || a.village || a.hamlet || a.suburb || a.municipality || '';
+          const state = a.state || a.county || '';
+          const country = a.country || '';
+          const parts = [city, state, country].filter(Boolean);
+          if (parts.length) name = parts.join(', ');
+        }
+      } catch (e) { /* fall back to coords */ }
+      await fetchWeather(lat, lon, name);
+    },
+    () => showError('Location access denied. Try typing a city or zip code instead.')
+  );
+});
+
+function getSelectedDateTime() {
+  const dateVal = $('dateInput').value;
+  const timeVal = $('timeInput').value || '12:00';
+  if (!dateVal) { setNow(); return getSelectedDateTime(); }
+  const [y, m, d] = dateVal.split('-').map(Number);
+  const [hh, mm] = timeVal.split(':').map(Number);
+  return new Date(y, m - 1, d, hh, mm);
+}
+
+function getTimeMode(target) {
+  const diffH = (target - new Date()) / 36e5;
+  if (Math.abs(diffH) < 1) return 'now';
+  return diffH < 0 ? 'past' : 'future';
+}
+
+async function fetchWeather(lat, lon, name) {
+  showStatus('Fetching sky data…');
+  const target = getSelectedDateTime();
+  const mode = getTimeMode(target);
+  const dateStr = localDateStr(target);
+  const hourlyVars = 'cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,visibility,weather_code,is_day';
+
+  try {
+    let data;
+
+    if (mode === 'now') {
+      const params = `latitude=${lat}&longitude=${lon}&current=cloud_cover,weather_code,visibility,is_day&hourly=${hourlyVars}&forecast_hours=6&timezone=auto`;
+      data = await fetch(`${FORECAST_URL}?${params}`).then(r => r.json());
+      if (data.error) return showError(data.reason || 'API error.');
+      return renderResult(data, name, lat, lon, target, mode, true);
+    }
+
+    if (mode === 'future') {
+      const params = `latitude=${lat}&longitude=${lon}&hourly=${hourlyVars}&start_date=${dateStr}&end_date=${dateStr}&timezone=auto`;
+      data = await fetch(`${FORECAST_URL}?${params}`).then(r => r.json());
+      if (data.error) return showError(data.reason || 'Forecast only available up to 16 days ahead.');
+      return renderResult(data, name, lat, lon, target, mode, false);
+    }
+
+    // Past
+    const daysDiff = Math.floor((new Date() - target) / 864e5);
+    const apiUrl = daysDiff <= 92 ? FORECAST_URL : ARCHIVE_URL;
+    const params = `latitude=${lat}&longitude=${lon}&hourly=${hourlyVars}&start_date=${dateStr}&end_date=${dateStr}&timezone=auto`;
+    data = await fetch(`${apiUrl}?${params}`).then(r => r.json());
+    if (data.error) return showError(data.reason || 'Could not fetch historical data.');
+    renderResult(data, name, lat, lon, target, mode, false);
+
+  } catch (e) {
+    console.error(e);
+    showError('Could not fetch weather data. Please try again.');
+  }
+}
+
+/* ---------- SCORING ---------- */
+
+function computeScoreFromCurrent(data) {
+  const c = data.current;
+  const h = data.hourly;
+  return score(c.cloud_cover, c.visibility/1000, c.weather_code, c.is_day,
+    avg(h.cloud_cover_high||[0]), avg(h.cloud_cover_mid||[0]), avg(h.cloud_cover_low||[0]));
+}
+
+function computeScoreFromHourly(hourly, idx) {
+  const safe = i => Math.max(0, Math.min(i, hourly.cloud_cover.length - 1));
+  const wStart = safe(idx - 2), wEnd = safe(idx + 3);
+  const sl = arr => { if (!arr) return [0]; const s = arr.slice(wStart, wEnd+1); return s.length ? s : [0]; };
+
+  return score(
+    hourly.cloud_cover[safe(idx)],
+    (hourly.visibility ? hourly.visibility[safe(idx)] : 24000) / 1000,
+    hourly.weather_code[safe(idx)],
+    hourly.is_day ? hourly.is_day[safe(idx)] : 1,
+    avg(sl(hourly.cloud_cover_high)),
+    avg(sl(hourly.cloud_cover_mid)),
+    avg(sl(hourly.cloud_cover_low))
+  );
+}
+
+function score(cloudCover, visKm, weatherCode, isDay, avgHigh, avgMid, avgLow) {
+  let clearSky;
+  if (cloudCover <= 10) clearSky = 95;
+  else if (cloudCover <= 30) clearSky = 100;
+  else if (cloudCover <= 50) clearSky = 80;
+  else if (cloudCover <= 70) clearSky = 50;
+  else if (cloudCover <= 85) clearSky = 25;
+  else clearSky = 10;
+
+  const hb = Math.min(avgHigh * 1.2, 100), mb = Math.min(avgMid * 0.8, 80), lp = avgLow * 0.6;
+  let pretty = Math.max(0, Math.min(100, (hb*0.5 + mb*0.5) - lp));
+  if (cloudCover < 5) pretty = Math.min(pretty, 20);
+
+  let vis;
+  if (visKm >= 20) vis = 100;
+  else if (visKm >= 10) vis = 85;
+  else if (visKm >= 5) vis = 60;
+  else if (visKm >= 2) vis = 30;
+  else vis = 10;
+
+  let cond = 100;
+  if ([0,1].includes(weatherCode)) cond = 100;
+  else if (weatherCode === 2) cond = 85;
+  else if (weatherCode === 3) cond = 55;
+  else if ([45,48].includes(weatherCode)) cond = 20;
+  else if ([51,53,55,56,57,61,63,65,66,67].includes(weatherCode)) cond = 25;
+  else if ([71,73,75,77].includes(weatherCode)) cond = 35;
+  else if ([80,81,82].includes(weatherCode)) cond = 20;
+  else if ([85,86].includes(weatherCode)) cond = 30;
+  else if ([95,96,99].includes(weatherCode)) cond = 15;
+
+  const total = Math.round(clearSky*0.4 + pretty*0.25 + vis*0.2 + cond*0.15);
+
+  return {
+    total: Math.max(0, Math.min(100, total)),
+    clearSky: Math.round(clearSky), prettyClouds: Math.round(pretty),
+    visibility: Math.round(vis), conditions: Math.round(cond),
+    raw: { cloudCover, visibilityKm: Math.round(visKm), weatherCode, isDay,
+           avgHigh: Math.round(avgHigh), avgMid: Math.round(avgMid), avgLow: Math.round(avgLow) }
+  };
+}
+
+function avg(a) { if (!a||!a.length) return 0; return a.reduce((s,v)=>s+(v||0),0)/a.length; }
+
+/* ---------- RENDERING ---------- */
+
+function getVerdict(s) {
+  if (s >= 85) return { label:'Stunning', desc:'Exceptional sky conditions. Grab your camera — this is as good as it gets.', color:'var(--score-excellent)' };
+  if (s >= 70) return { label:'Beautiful', desc:'Great sky. Clear views with lovely cloud formations.', color:'var(--score-good)' };
+  if (s >= 50) return { label:'Decent', desc:'Reasonable sky. Some cloud cover but still worth a look up.', color:'var(--score-fair)' };
+  if (s >= 30) return { label:'Meh', desc:'Heavy clouds or reduced visibility. The sky is taking a day off.', color:'var(--score-poor)' };
+  return { label:'Gloomy', desc:'Not great up there — overcast, foggy, or stormy conditions.', color:'var(--score-bad)' };
+}
+
+function weatherCodeLabel(c) {
+  return ({0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',48:'Rime fog',
+    51:'Light drizzle',53:'Moderate drizzle',55:'Dense drizzle',56:'Freezing drizzle',57:'Dense freezing drizzle',
+    61:'Slight rain',63:'Moderate rain',65:'Heavy rain',66:'Freezing rain',67:'Heavy freezing rain',
+    71:'Slight snow',73:'Moderate snow',75:'Heavy snow',77:'Snow grains',
+    80:'Light rain showers',81:'Moderate rain showers',82:'Violent rain showers',
+    85:'Light snow showers',86:'Heavy snow showers',
+    95:'Thunderstorm',96:'Thunderstorm w/ hail',99:'Thunderstorm w/ heavy hail'})[c] || `Code ${c}`;
+}
+
+function fmtDate(d) {
+  const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let h = d.getHours(), ap = h >= 12 ? 'PM' : 'AM'; h = h%12||12;
+  return `${M[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} at ${h}:${pad(d.getMinutes())} ${ap}`;
+}
+
+function renderResult(data, name, lat, lon, targetDate, mode, useCurrent) {
+  let scores;
+  if (useCurrent && data.current) {
+    scores = computeScoreFromCurrent(data);
+  } else {
+    const h = data.hourly;
+    if (!h || !h.time || !h.time.length) return showError('No hourly data available for this date.');
+    const tH = targetDate.getHours();
+    let bI = 0, bD = Infinity;
+    for (let i = 0; i < h.time.length; i++) {
+      const diff = Math.abs(new Date(h.time[i]).getHours() - tH);
+      if (diff < bD) { bD = diff; bI = i; }
+    }
+    scores = computeScoreFromHourly(h, bI);
+  }
+
+  const v = getVerdict(scores.total);
+  const circ = 2 * Math.PI * 46;
+  const off = circ - (scores.total / 100) * circ;
+  const modeLabel = mode === 'past' ? 'Historical' : mode === 'future' ? 'Forecast' : 'Live';
+
+  setBackground(scores.total, scores.raw.isDay);
+
+  $('output').innerHTML = `
+    <div class="result-card">
+      <div class="location-name">${name} <span class="time-badge ${mode}">${modeLabel}</span></div>
+      <div class="location-meta">
+        ${lat.toFixed(2)}°, ${lon.toFixed(2)}° · ${weatherCodeLabel(scores.raw.weatherCode)} · ${scores.raw.isDay ? 'Daytime' : 'Nighttime'}<br>
+        ${fmtDate(targetDate)}
+      </div>
+
+      <div class="score-section">
+        <div class="score-ring">
+          <svg viewBox="0 0 110 110">
+            <circle class="bg-ring" cx="55" cy="55" r="46"/>
+            <circle class="fg-ring" cx="55" cy="55" r="46"
+              stroke="${v.color}" stroke-dasharray="${circ}" stroke-dashoffset="${off}"/>
+          </svg>
+          <div class="score-number" style="color:${v.color}">${scores.total}</div>
+        </div>
+        <div class="score-info">
+          <h3 style="color:${v.color}">${v.label}</h3>
+          <p>${v.desc}</p>
+        </div>
+      </div>
+
+      <div class="metrics">
+        ${metric('Clear Sky', scores.clearSky)}
+        ${metric('Pretty Clouds', scores.prettyClouds)}
+        ${metric('Visibility', scores.visibility)}
+        ${metric('Conditions', scores.conditions)}
+      </div>
+    </div>
+
+    <div class="methodology">
+      <button class="methodology-toggle" onclick="toggleMethodology(this)">
+        How it's scored
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="methodology-content" id="methodContent">
+        <strong>Sky Score</strong> is a composite of four sub-scores:<br><br>
+        <strong>Clear Sky (40%)</strong> — Cloud cover percentage. 20–30% scores highest — scattered clouds add visual interest.<br><br>
+        <strong>Pretty Clouds (25%)</strong> — High & mid-altitude clouds are dramatic and photogenic. Low clouds are penalized.<br><br>
+        <strong>Visibility (20%)</strong> — Higher visibility = crisper, more vivid skies.<br><br>
+        <strong>Conditions (15%)</strong> — Rain, fog, or storms reduce the score.<br><br>
+        <div class="formula">Score = (ClearSky × 0.40) + (PrettyClouds × 0.25) + (Visibility × 0.20) + (Conditions × 0.15)</div>
+        <strong>Data sources:</strong><br>
+        • <strong>Live & forecast</strong> (up to 16 days) — Open-Meteo Forecast API<br>
+        • <strong>Recent past</strong> (≤3 months) — Open-Meteo Forecast API historical mode<br>
+        • <strong>Older history</strong> (back to 1940) — Open-Meteo Archive API (ERA5 reanalysis)<br><br>
+        No API key required. All data from <strong>Open-Meteo</strong>.
+      </div>
+    </div>
+  `;
+}
+
+function metric(label, val) {
+  const c = val >= 80 ? 'var(--score-excellent)' : val >= 60 ? 'var(--score-good)' : val >= 40 ? 'var(--score-fair)' : val >= 20 ? 'var(--score-poor)' : 'var(--score-bad)';
+  return `<div class="metric">
+    <div class="metric-label">${label}</div>
+    <div class="metric-value">${val}<span style="font-size:0.8rem;color:var(--text-muted);font-weight:300">/100</span></div>
+    <div class="metric-bar"><div class="metric-bar-fill" style="width:${val}%;background:${c}"></div></div>
+  </div>`;
+}
+
+function toggleMethodology(btn) { btn.classList.toggle('open'); $('methodContent').classList.toggle('open'); }
+function showStatus(msg) { resetBackground(); $('output').innerHTML = `<div class="status"><span class="spinner"></span>${msg}</div>`; }
+function showError(msg) { resetBackground(); $('output').innerHTML = `<div class="error">${msg}</div>`; }
+
+function setBackground(score, isDay) {
+  const body = document.body;
+  const root = document.documentElement;
+  let bg, textColor, mutedColor, cardBg, borderColor, btnBg, btnText, metricBg;
+
+  if (!isDay) {
+    // Nighttime variants
+    if (score >= 85) {
+      bg = 'linear-gradient(160deg, #0B1026 0%, #1B2551 40%, #2A3A7A 100%)';
+    } else if (score >= 70) {
+      bg = 'linear-gradient(160deg, #0F1535 0%, #1E2D5E 40%, #2C3E6E 100%)';
+    } else if (score >= 50) {
+      bg = 'linear-gradient(160deg, #151820 0%, #252A38 40%, #353B4A 100%)';
+    } else if (score >= 30) {
+      bg = 'linear-gradient(160deg, #1A1A22 0%, #252530 40%, #30303D 100%)';
+    } else {
+      bg = 'linear-gradient(160deg, #141417 0%, #1E1E24 40%, #28282F 100%)';
+    }
+    textColor = '#E8E8F0';
+    mutedColor = '#9999B0';
+    cardBg = 'rgba(255,255,255,0.07)';
+    borderColor = 'rgba(255,255,255,0.1)';
+    btnBg = '#E8E8F0';
+    btnText = '#1A1A2E';
+    metricBg = 'rgba(255,255,255,0.05)';
+  } else {
+    // Daytime variants
+    if (score >= 85) {
+      bg = 'linear-gradient(160deg, #87CEEB 0%, #B0E0F6 30%, #E8F4FD 70%, #F0F7FB 100%)';
+    } else if (score >= 70) {
+      bg = 'linear-gradient(160deg, #9ECFDF 0%, #C4DFE8 30%, #E5EFF3 70%, #F2F6F8 100%)';
+    } else if (score >= 50) {
+      bg = 'linear-gradient(160deg, #B8C6CE 0%, #CDD6DA 30%, #E2E6E8 70%, #EEEFF0 100%)';
+    } else if (score >= 30) {
+      bg = 'linear-gradient(160deg, #A0A0A8 0%, #BCBCC2 30%, #D5D5D8 70%, #E5E5E7 100%)';
+    } else {
+      bg = 'linear-gradient(160deg, #7A7A82 0%, #9A9AA0 30%, #B8B8BC 70%, #D0D0D2 100%)';
+    }
+    if (score < 30) {
+      textColor = '#F0F0F0';
+      mutedColor = '#C8C8D0';
+      cardBg = 'rgba(255,255,255,0.12)';
+      borderColor = 'rgba(255,255,255,0.15)';
+      btnBg = '#F0F0F0';
+      btnText = '#2A2A2A';
+      metricBg = 'rgba(255,255,255,0.08)';
+    } else {
+      textColor = '#1A1A1A';
+      mutedColor = '#7A7A7A';
+      cardBg = 'rgba(255,255,255,0.85)';
+      borderColor = '#E8E5E0';
+      btnBg = '#1A1A1A';
+      btnText = '#F6F4F0';
+      metricBg = 'rgba(0,0,0,0.04)';
+    }
+  }
+
+  body.style.background = bg;
+  root.style.setProperty('--text', textColor);
+  root.style.setProperty('--text-muted', mutedColor);
+  root.style.setProperty('--card', cardBg);
+  root.style.setProperty('--border', borderColor);
+  root.style.setProperty('--btn-bg', btnBg);
+  root.style.setProperty('--btn-text', btnText);
+  root.style.setProperty('--metric-bg', metricBg);
+}
+
+function resetBackground() {
+  const root = document.documentElement;
+  document.body.style.background = '';
+  root.style.setProperty('--text', '#1A1A1A');
+  root.style.setProperty('--text-muted', '#7A7A7A');
+  root.style.setProperty('--card', '#FFFFFF');
+  root.style.setProperty('--border', '#E8E5E0');
+  root.style.setProperty('--btn-bg', '#1A1A1A');
+  root.style.setProperty('--btn-text', '#F6F4F0');
+  root.style.setProperty('--metric-bg', '#F0EDE8');
+}
+</script>
+</body>
+</html>
