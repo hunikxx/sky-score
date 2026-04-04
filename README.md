@@ -2,8 +2,6 @@
 
 **How photogenic is the sky right now?** Sky Score rates the sky at any location on a 0–100 scale based on cloud cover, cloud type, visibility, and weather conditions — for the past, present, or future.
 
-Live site: `https://YOUR_USERNAME.github.io/sky-score/`
-
 ---
 
 ## Features
