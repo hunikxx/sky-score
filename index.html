@@ -7,344 +7,141 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #F6F4F0;
-    --text: #1A1A1A;
-    --text-muted: #7A7A7A;
-    --accent: #3B6BCC;
-    --card: #FFFFFF;
-    --border: #E8E5E0;
-    --score-excellent: #2D8F5E;
-    --score-good: #5BA35B;
-    --score-fair: #C9A832;
-    --score-poor: #C27A3A;
-    --score-bad: #A14B4B;
-    --radius: 16px;
-    --shadow: 0 2px 20px rgba(0,0,0,0.04);
-    --btn-bg: #1A1A1A;
-    --btn-text: #F6F4F0;
-    --metric-bg: #F0EDE8;
+    --bg: #F6F4F0; --text: #1A1A1A; --text-muted: #7A7A7A; --accent: #3B6BCC;
+    --card: #FFFFFF; --border: #E8E5E0;
+    --score-excellent: #2D8F5E; --score-good: #5BA35B; --score-fair: #C9A832;
+    --score-poor: #C27A3A; --score-bad: #A14B4B;
+    --radius: 16px; --shadow: 0 2px 20px rgba(0,0,0,0.04);
+    --btn-bg: #1A1A1A; --btn-text: #F6F4F0; --metric-bg: #F0EDE8;
   }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; -webkit-font-smoothing:antialiased; transition:background 1s ease,color .5s ease; }
+  .container { max-width:640px; margin:0 auto; padding:60px 24px 80px; }
+  header { text-align:center; margin-bottom:48px; animation:fadeUp .6s ease both; }
+  header h1 { font-family:'DM Serif Display',serif; font-size:3rem; letter-spacing:-1px; margin-bottom:8px; color:var(--text); transition:color .5s ease; }
+  header h1 a { text-decoration:none; color:inherit; }
+  header p { color:var(--text-muted); font-weight:300; font-size:1.05rem; letter-spacing:.3px; }
+  .lang-bar { display:flex; justify-content:center; gap:6px; margin-bottom:20px; flex-wrap:wrap; }
+  .lang-btn { background:none; border:1.5px solid var(--border); border-radius:8px; padding:5px 12px; font-family:'DM Sans',sans-serif; font-size:.75rem; font-weight:500; color:var(--text-muted); cursor:pointer; transition:all .2s; letter-spacing:.5px; }
+  .lang-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .lang-btn.active { background:var(--btn-bg); color:var(--btn-text); border-color:var(--btn-bg); }
+  .search-area { display:flex; gap:10px; margin-bottom:12px; animation:fadeUp .6s ease .1s both; position:relative; z-index:50; }
+  .search-wrapper { flex:1; position:relative; z-index:51; }
+  .autocomplete-dropdown { position:absolute; top:100%; left:0; right:0; background:var(--card); border:1.5px solid var(--border); border-top:none; border-radius:0 0 12px 12px; max-height:240px; overflow-y:auto; z-index:200; display:none; box-shadow:0 12px 32px rgba(0,0,0,0.12); backdrop-filter:blur(8px); }
+  .autocomplete-dropdown.open { display:block; }
+  .auto-item { padding:12px 20px; cursor:pointer; font-size:.9rem; color:var(--text); transition:background .15s; display:flex; flex-direction:column; gap:1px; border-bottom:1px solid var(--border); }
+  .auto-item:last-child { border-bottom:none; }
+  .auto-item:hover,.auto-item.active { background:var(--metric-bg); }
+  .auto-item-name { font-weight:500; }
+  .auto-item-region { font-size:.75rem; color:var(--text-muted); }
+  .search-input,.datetime-input { flex:1; width:100%; padding:14px 20px; border:1.5px solid var(--border); border-radius:12px; font-family:'DM Sans',sans-serif; font-size:.95rem; background:var(--card); color:var(--text); outline:none; transition:border .2s,background .8s ease,color .5s ease; }
+  .search-input:focus,.datetime-input:focus { border-color:var(--accent); }
+  .search-input::placeholder { color:#B5B5B5; }
+  .datetime-row { display:flex; gap:10px; margin-bottom:16px; animation:fadeUp .6s ease .12s both; align-items:center; }
+  .datetime-input { flex:1; min-width:0; }
+  .datetime-label { font-size:.78rem; text-transform:uppercase; letter-spacing:1.2px; color:var(--text-muted); white-space:nowrap; flex-shrink:0; }
+  .btn-now { padding:10px 14px; background:var(--card); color:var(--text-muted); border:1.5px solid var(--border); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:.78rem; font-weight:500; cursor:pointer; transition:all .2s,background .8s ease; white-space:nowrap; text-transform:uppercase; letter-spacing:.8px; }
+  .btn-now:hover { border-color:var(--accent); color:var(--accent); }
+  .btn { padding:14px 22px; border:none; border-radius:12px; font-family:'DM Sans',sans-serif; font-size:.9rem; font-weight:500; cursor:pointer; transition:all .2s; white-space:nowrap; }
+  .btn-primary { background:var(--btn-bg); color:var(--btn-text); transition:all .2s,background .8s ease; }
+  .btn-primary:hover { opacity:.85; transform:translateY(-1px); }
+  .btn-gps { background:var(--card); color:var(--text); border:1.5px solid var(--border); display:flex; align-items:center; gap:6px; animation:fadeUp .6s ease .15s both; transition:background .8s ease,color .5s ease,border-color .5s ease; margin-bottom:24px; }
+  .btn-gps:hover { border-color:var(--accent); color:var(--accent); }
+  .btn-gps svg { width:16px; height:16px; }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  /* Recents */
+  .recents-section { margin-bottom:20px; animation:fadeUp .6s ease .18s both; }
+  .recents-label { font-size:.72rem; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-muted); margin-bottom:10px; }
+  .recents-bar { display:flex; gap:8px; flex-wrap:wrap; }
+  .recent-chip { display:flex; align-items:center; gap:4px; padding:7px 14px; background:var(--card); border:1.5px solid var(--border); border-radius:20px; font-size:.8rem; cursor:pointer; transition:all .2s; color:var(--text); font-family:'DM Sans',sans-serif; }
+  .recent-chip:hover { border-color:var(--accent); color:var(--accent); }
+  .recent-chip .recent-remove { font-size:.65rem; opacity:.35; margin-left:4px; cursor:pointer; }
+  .recent-chip .recent-remove:hover { opacity:1; color:var(--score-bad); }
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-    transition: background 1s ease, color 0.5s ease;
+  .time-badge { display:inline-block; padding:4px 10px; border-radius:6px; font-size:.72rem; font-weight:500; text-transform:uppercase; letter-spacing:1px; margin-left:8px; vertical-align:middle; font-family:'DM Sans',sans-serif; }
+  .time-badge.past { background:#EDE7F6; color:#5E35B1; }
+  .time-badge.now { background:#E8F5E9; color:#2E7D32; }
+  .time-badge.future { background:#E3F2FD; color:#1565C0; }
+  .status { text-align:center; padding:24px; color:var(--text-muted); font-size:.9rem; font-weight:300; animation:fadeUp .4s ease both; }
+  .spinner { display:inline-block; width:20px; height:20px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; margin-right:8px; vertical-align:middle; }
+  .result-card { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:40px 32px; animation:fadeUp .5s ease both; border:1px solid var(--border); transition:background .8s ease,border-color .5s ease; }
+  .location-name { font-family:'DM Serif Display',serif; font-size:1.6rem; margin-bottom:4px; letter-spacing:-.5px; }
+  .location-meta { color:var(--text-muted); font-size:.85rem; font-weight:300; margin-bottom:32px; line-height:1.6; }
+  .score-section { display:flex; align-items:center; gap:32px; margin-bottom:36px; padding-bottom:36px; border-bottom:1px solid var(--border); }
+  .score-ring { position:relative; width:110px; height:110px; flex-shrink:0; }
+  .score-ring svg { width:110px; height:110px; transform:rotate(-90deg); }
+  .score-ring .bg-ring { fill:none; stroke:var(--border); stroke-width:6; }
+  .score-ring .fg-ring { fill:none; stroke-width:6; stroke-linecap:round; transition:stroke-dashoffset 1s ease,stroke .5s ease; }
+  .score-number { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-family:'DM Serif Display',serif; font-size:2rem; letter-spacing:-1px; }
+  .score-info h3 { font-family:'DM Serif Display',serif; font-size:1.3rem; margin-bottom:6px; }
+  .score-info p { color:var(--text-muted); font-size:.88rem; font-weight:300; line-height:1.6; }
+  .metrics { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .metric { padding:16px; background:var(--metric-bg); border-radius:12px; transition:background .8s ease; }
+  .metric-label { font-size:.72rem; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-muted); margin-bottom:6px; }
+  .metric-value { font-size:1.25rem; font-weight:500; letter-spacing:-.3px; }
+  .metric-bar { height:3px; background:var(--border); border-radius:2px; margin-top:8px; overflow:hidden; }
+  .metric-bar-fill { height:100%; border-radius:2px; transition:width .8s ease; }
+
+  /* Sun info */
+  .sun-info { display:flex; gap:16px; margin-top:20px; padding:16px; background:var(--metric-bg); border-radius:12px; transition:background .8s ease; }
+  .sun-item { flex:1; text-align:center; }
+  .sun-icon { font-size:1.2rem; margin-bottom:4px; }
+  .sun-label { font-size:.68rem; text-transform:uppercase; letter-spacing:1.2px; color:var(--text-muted); margin-bottom:2px; }
+  .sun-time { font-size:.95rem; font-weight:500; }
+  .golden-badge { display:inline-block; margin-top:12px; padding:6px 14px; border-radius:20px; font-size:.75rem; font-weight:500; background:linear-gradient(135deg,#F6D365,#FDA085); color:#5D3A1A; letter-spacing:.5px; }
+
+  /* Share bar */
+  .share-bar { display:flex; gap:8px; margin-top:20px; justify-content:center; flex-wrap:wrap; }
+  .share-btn { padding:8px 16px; border-radius:20px; border:1.5px solid var(--border); background:var(--card); color:var(--text); font-family:'DM Sans',sans-serif; font-size:.78rem; font-weight:500; cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:5px; }
+  .share-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .share-btn svg { width:14px; height:14px; }
+
+  /* 7-day strip */
+  .forecast-strip { margin-top:24px; }
+  .forecast-strip-title { font-size:.72rem; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-muted); margin-bottom:12px; }
+  .strip-row { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; }
+  .strip-day { flex:0 0 auto; width:72px; padding:12px 8px; background:var(--metric-bg); border-radius:10px; text-align:center; cursor:pointer; transition:all .2s; border:1.5px solid transparent; }
+  .strip-day:hover { border-color:var(--accent); }
+  .strip-day.active { border-color:var(--accent); background:var(--card); }
+  .strip-day-name { font-size:.68rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:4px; }
+  .strip-day-score { font-size:1.1rem; font-weight:600; }
+  .strip-day-label { font-size:.6rem; color:var(--text-muted); margin-top:2px; }
+
+  /* Best hour */
+  .best-hour { margin-top:16px; padding:16px; background:var(--metric-bg); border-radius:12px; text-align:center; transition:background .8s ease; }
+  .best-hour-title { font-size:.72rem; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-muted); margin-bottom:6px; }
+  .best-hour-value { font-size:1.3rem; font-weight:600; }
+  .best-hour-score { font-size:.85rem; color:var(--text-muted); margin-top:2px; }
+
+  /* Methodology */
+  .methodology { margin-top:40px; animation:fadeUp .5s ease .15s both; }
+  .methodology-toggle { display:flex; align-items:center; gap:8px; background:none; border:none; font-family:'DM Sans',sans-serif; font-size:.82rem; color:var(--text-muted); cursor:pointer; letter-spacing:.5px; text-transform:uppercase; padding:0; }
+  .methodology-toggle:hover { color:var(--text); }
+  .methodology-toggle svg { width:14px; height:14px; transition:transform .3s; }
+  .methodology-content { display:none; margin-top:16px; padding:24px; background:var(--card); border-radius:var(--radius); border:1px solid var(--border); font-size:.85rem; color:var(--text-muted); line-height:1.8; font-weight:300; }
+  .methodology-content.open { display:block; animation:fadeUp .3s ease; }
+  .methodology-toggle.open svg { transform:rotate(180deg); }
+  .methodology-content strong { color:var(--text); font-weight:500; }
+  .methodology-content .formula { margin:12px 0; padding:12px 16px; background:var(--metric-bg); border-radius:8px; font-family:monospace; font-size:.8rem; color:var(--text); }
+  .error { text-align:center; padding:24px; color:var(--score-bad); font-size:.9rem; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes spin { to{transform:rotate(360deg)} }
+
+  @media(max-width:500px){
+    .container{padding:40px 16px 60px} header h1{font-size:2.2rem}
+    .search-area{flex-direction:column} .search-input,.datetime-input{font-size:16px}
+    .datetime-row{flex-wrap:wrap} .datetime-label{width:100%;margin-bottom:-4px}
+    .datetime-input{min-height:48px} .btn{min-height:48px} .btn-now{min-height:44px}
+    .btn-gps{min-height:48px;justify-content:center;width:100%}
+    .score-section{flex-direction:column;text-align:center;gap:20px}
+    .metrics{grid-template-columns:1fr} .result-card{padding:28px 20px}
+    .location-name{font-size:1.35rem;line-height:1.4}
+    .time-badge{display:block;margin-left:0;margin-top:6px;width:fit-content}
+    .methodology-content{padding:18px 16px}
+    .sun-info{flex-wrap:wrap}
   }
-
-  .container {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 60px 24px 80px;
-  }
-
-  header {
-    text-align: center;
-    margin-bottom: 48px;
-    animation: fadeUp 0.6s ease both;
-  }
-
-  header h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 3rem;
-    letter-spacing: -1px;
-    margin-bottom: 8px;
-    color: var(--text);
-    transition: color 0.5s ease;
-  }
-
-  header p {
-    color: var(--text-muted);
-    font-weight: 300;
-    font-size: 1.05rem;
-    letter-spacing: 0.3px;
-  }
-
-  .search-area {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 12px;
-    animation: fadeUp 0.6s ease 0.1s both;
-  }
-
-  .search-input, .datetime-input {
-    flex: 1;
-    padding: 14px 20px;
-    border: 1.5px solid var(--border);
-    border-radius: 12px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.95rem;
-    background: var(--card);
-    color: var(--text);
-    outline: none;
-    transition: border 0.2s, background 0.8s ease, color 0.5s ease;
-  }
-  .search-input:focus, .datetime-input:focus { border-color: var(--accent); }
-  .search-input::placeholder { color: #B5B5B5; }
-
-  .datetime-row {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 16px;
-    animation: fadeUp 0.6s ease 0.12s both;
-    align-items: center;
-  }
-
-  .datetime-input { flex: 1; min-width: 0; }
-
-  .datetime-label {
-    font-size: 0.78rem;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    color: var(--text-muted);
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  .btn-now {
-    padding: 10px 14px;
-    background: var(--card);
-    color: var(--text-muted);
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s, background 0.8s ease;
-    white-space: nowrap;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-  }
-  .btn-now:hover { border-color: var(--accent); color: var(--accent); }
-
-  .btn {
-    padding: 14px 22px;
-    border: none;
-    border-radius: 12px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-
-  .btn-primary { background: var(--btn-bg); color: var(--btn-text); transition: all 0.2s, background 0.8s ease; }
-  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
-
-  .btn-gps {
-    background: var(--card);
-    color: var(--text);
-    border: 1.5px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    animation: fadeUp 0.6s ease 0.15s both;
-    transition: background 0.8s ease, color 0.5s ease, border-color 0.5s ease;
-    margin-bottom: 24px;
-  }
-  .btn-gps:hover { border-color: var(--accent); color: var(--accent); }
-  .btn-gps svg { width: 16px; height: 16px; }
-
-  .time-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 0.72rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-left: 8px;
-    vertical-align: middle;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .time-badge.past { background: #EDE7F6; color: #5E35B1; }
-  .time-badge.now { background: #E8F5E9; color: #2E7D32; }
-  .time-badge.future { background: #E3F2FD; color: #1565C0; }
-
-  .status {
-    text-align: center;
-    padding: 24px;
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    font-weight: 300;
-    animation: fadeUp 0.4s ease both;
-  }
-
-  .spinner {
-    display: inline-block;
-    width: 20px; height: 20px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    margin-right: 8px;
-    vertical-align: middle;
-  }
-
-  .result-card {
-    background: var(--card);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 40px 32px;
-    animation: fadeUp 0.5s ease both;
-    border: 1px solid var(--border);
-    transition: background 0.8s ease, border-color 0.5s ease;
-  }
-
-  .location-name {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.6rem;
-    margin-bottom: 4px;
-    letter-spacing: -0.5px;
-  }
-
-  .location-meta {
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    font-weight: 300;
-    margin-bottom: 32px;
-    line-height: 1.6;
-  }
-
-  .score-section {
-    display: flex;
-    align-items: center;
-    gap: 32px;
-    margin-bottom: 36px;
-    padding-bottom: 36px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .score-ring {
-    position: relative;
-    width: 110px;
-    height: 110px;
-    flex-shrink: 0;
-  }
-
-  .score-ring svg { width: 110px; height: 110px; transform: rotate(-90deg); }
-  .score-ring .bg-ring { fill: none; stroke: var(--border); stroke-width: 6; }
-  .score-ring .fg-ring { fill: none; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 1s ease, stroke 0.5s ease; }
-
-  .score-number {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    font-family: 'DM Serif Display', serif;
-    font-size: 2rem;
-    letter-spacing: -1px;
-  }
-
-  .score-info h3 { font-family: 'DM Serif Display', serif; font-size: 1.3rem; margin-bottom: 6px; }
-  .score-info p { color: var(--text-muted); font-size: 0.88rem; font-weight: 300; line-height: 1.6; }
-
-  .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-
-  .metric { padding: 16px; background: var(--metric-bg); border-radius: 12px; transition: background 0.8s ease; }
-  .metric-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 6px; }
-  .metric-value { font-size: 1.25rem; font-weight: 500; letter-spacing: -0.3px; }
-  .metric-bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 8px; overflow: hidden; }
-  .metric-bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
-
-  .methodology { margin-top: 40px; animation: fadeUp 0.5s ease 0.15s both; }
-
-  .methodology-toggle {
-    display: flex; align-items: center; gap: 8px;
-    background: none; border: none;
-    font-family: 'DM Sans', sans-serif; font-size: 0.82rem;
-    color: var(--text-muted); cursor: pointer;
-    letter-spacing: 0.5px; text-transform: uppercase; padding: 0;
-  }
-  .methodology-toggle:hover { color: var(--text); }
-  .methodology-toggle svg { width: 14px; height: 14px; transition: transform 0.3s; }
-
-  .methodology-content {
-    display: none; margin-top: 16px; padding: 24px;
-    background: var(--card); border-radius: var(--radius);
-    border: 1px solid var(--border); font-size: 0.85rem;
-    color: var(--text-muted); line-height: 1.8; font-weight: 300;
-  }
-  .methodology-content.open { display: block; animation: fadeUp 0.3s ease; }
-  .methodology-toggle.open svg { transform: rotate(180deg); }
-  .methodology-content strong { color: var(--text); font-weight: 500; }
-
-  .methodology-content .formula {
-    margin: 12px 0; padding: 12px 16px;
-    background: var(--metric-bg); border-radius: 8px;
-    font-family: monospace; font-size: 0.8rem; color: var(--text);
-  }
-
-  .lang-bar {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-    margin-bottom: 20px;
-  }
-
-  .lang-btn {
-    background: none;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    padding: 5px 12px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.5px;
-  }
-  .lang-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .lang-btn.active { background: var(--btn-bg); color: var(--btn-text); border-color: var(--btn-bg); }
-
-  .site-footer {
-    text-align: center;
-    margin-top: 48px;
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    letter-spacing: 0.3px;
-    font-weight: 300;
-    transition: color 0.5s ease;
-  }
-
-  .error { text-align: center; padding: 24px; color: var(--score-bad); font-size: 0.9rem; }
-
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  @media (max-width: 500px) {
-    .container { padding: 40px 16px 60px; }
-    header h1 { font-size: 2.2rem; }
-    .search-area { flex-direction: column; }
-    .search-input, .datetime-input { font-size: 16px; } /* prevents iOS zoom on focus */
-    .datetime-row {
-      flex-wrap: wrap;
-    }
-    .datetime-label { width: 100%; margin-bottom: -4px; }
-    .datetime-input { min-height: 48px; }
-    .btn { min-height: 48px; }
-    .btn-now { min-height: 44px; }
-    .btn-gps { min-height: 48px; justify-content: center; width: 100%; }
-    .score-section { flex-direction: column; text-align: center; gap: 20px; }
-    .metrics { grid-template-columns: 1fr; }
-    .result-card { padding: 28px 20px; }
-    .location-name { font-size: 1.35rem; line-height: 1.4; }
-    .time-badge { display: block; margin-left: 0; margin-top: 6px; width: fit-content; }
-    .methodology-content { padding: 18px 16px; }
-  }
-
-  @media (max-width: 360px) {
-    header h1 { font-size: 1.9rem; }
-    .score-ring { width: 90px; height: 90px; }
-    .score-ring svg { width: 90px; height: 90px; }
-    .score-number { font-size: 1.6rem; }
-  }
+  @media(max-width:360px){ header h1{font-size:1.9rem} .score-ring{width:90px;height:90px} .score-ring svg{width:90px;height:90px} .score-number{font-size:1.6rem} }
 </style>
 </head>
 <body>
@@ -354,14 +151,18 @@
       <button class="lang-btn active" data-lang="en">EN</button>
       <button class="lang-btn" data-lang="ko">한국어</button>
       <button class="lang-btn" data-lang="ja">日本語</button>
+      <button class="lang-btn" data-lang="zh">中文</button>
       <button class="lang-btn" data-lang="es">ES</button>
     </div>
-    <h1>Sky Score</h1>
+    <h1><a href="#" id="homeLink">Sky Score</a></h1>
     <p id="subtitle">How photogenic is the sky? Past, present, or future.</p>
   </header>
 
   <div class="search-area">
-    <input type="text" class="search-input" id="cityInput" placeholder="Enter a city or zip code…" />
+    <div class="search-wrapper">
+      <input type="text" class="search-input" id="cityInput" placeholder="Enter a city or zip code…" autocomplete="off" />
+      <div class="autocomplete-dropdown" id="autoDropdown"></div>
+    </div>
     <button class="btn btn-primary" id="searchBtn">Score</button>
   </div>
 
@@ -377,635 +178,379 @@
     <span id="gpsLabel">Use my location</span>
   </button>
 
+  <div class="recents-section" id="recentsSection"></div>
+
   <div id="output"></div>
 </div>
 
 <script>
-const GEOCODE_URL = 'https://geocoding-api.open-meteo.com/v1/search';
-const FORECAST_URL = 'https://api.open-meteo.com/v1/forecast';
-const ARCHIVE_URL = 'https://archive-api.open-meteo.com/v1/archive';
-const $ = id => document.getElementById(id);
+const GEOCODE_URL='https://geocoding-api.open-meteo.com/v1/search';
+const FORECAST_URL='https://api.open-meteo.com/v1/forecast';
+const ARCHIVE_URL='https://archive-api.open-meteo.com/v1/archive';
+const $=id=>document.getElementById(id);
+let lang='en', lastResult=null;
 
-/* ---------- i18n ---------- */
-let lang = 'en';
-
-const i18n = {
-  en: {
-    subtitle: 'How photogenic is the sky? Past, present, or future.',
-    placeholder: 'Enter a city or zip code…',
-    score: 'Score',
-    when: 'When',
-    now: 'Now',
-    useLocation: 'Use my location',
-    lookingUp: 'Looking up location…',
-    gettingLocation: 'Getting your location…',
-    fetchingSky: 'Fetching sky data…',
-    notFound: 'Location not found. Try another city or zip code.',
-    lookupError: 'Could not look up location. Please try again.',
-    geoNotSupported: 'Geolocation not supported.',
-    geoDenied: 'Location access denied. Try typing a city or zip code instead.',
-    fetchError: 'Could not fetch weather data. Please try again.',
-    noData: 'No hourly data available for this date.',
-    historical: 'Historical',
-    forecast: 'Forecast',
-    live: 'Live',
-    daytime: 'Daytime',
-    nighttime: 'Nighttime',
-    clearSky: 'Clear Sky',
-    prettyClouds: 'Pretty Clouds',
-    visibility: 'Visibility',
-    conditions: 'Conditions',
-    howScored: "How it's scored",
-    stunning: 'Stunning',
-    stunningDesc: 'Exceptional sky conditions. Grab your camera — this is as good as it gets.',
-    beautiful: 'Beautiful',
-    beautifulDesc: 'Great sky. Clear views with lovely cloud formations.',
-    decent: 'Decent',
-    decentDesc: 'Reasonable sky. Some cloud cover but still worth a look up.',
-    meh: 'Meh',
-    mehDesc: 'Heavy clouds or reduced visibility. The sky is taking a day off.',
-    gloomy: 'Gloomy',
-    gloomyDesc: 'Not great up there — overcast, foggy, or stormy conditions.',
-    methodIntro: '<strong>Sky Score</strong> is a composite of four sub-scores:',
-    methodClear: '<strong>Clear Sky (40%)</strong> — Cloud cover percentage. 20–30% scores highest — scattered clouds add visual interest.',
-    methodClouds: '<strong>Pretty Clouds (25%)</strong> — High & mid-altitude clouds are dramatic and photogenic. Low clouds are penalized.',
-    methodVis: '<strong>Visibility (20%)</strong> — Higher visibility = crisper, more vivid skies.',
-    methodCond: '<strong>Conditions (15%)</strong> — Rain, fog, or storms reduce the score.',
-    methodSrcLive: '<strong>Live & forecast</strong> (up to 16 days) — Open-Meteo Forecast API',
-    methodSrcRecent: '<strong>Recent past</strong> (≤3 months) — Open-Meteo Forecast API historical mode',
-    methodSrcOld: '<strong>Older history</strong> (back to 1940) — Open-Meteo Archive API (ERA5 reanalysis)',
-    methodNoKey: 'No API key required. All data from <strong>Open-Meteo</strong>.',
-    dataSources: 'Data sources:',
-    footer: 'Inspired by an idea from Jessica',
-    weather: {0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',48:'Rime fog',51:'Light drizzle',53:'Moderate drizzle',55:'Dense drizzle',56:'Freezing drizzle',57:'Dense freezing drizzle',61:'Slight rain',63:'Moderate rain',65:'Heavy rain',66:'Freezing rain',67:'Heavy freezing rain',71:'Slight snow',73:'Moderate snow',75:'Heavy snow',77:'Snow grains',80:'Light rain showers',81:'Moderate rain showers',82:'Violent rain showers',85:'Light snow showers',86:'Heavy snow showers',95:'Thunderstorm',96:'Thunderstorm w/ hail',99:'Thunderstorm w/ heavy hail'},
-    months: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-    at: 'at',
-    forecastLimit: 'Forecast only available up to 16 days ahead.',
-    historyError: 'Could not fetch historical data.',
-    apiError: 'API error.',
-  },
-  ko: {
-    subtitle: '하늘이 얼마나 아름다울까요? 과거, 현재, 미래.',
-    placeholder: '도시 또는 우편번호 입력…',
-    score: '점수',
-    when: '시간',
-    now: '지금',
-    useLocation: '내 위치 사용',
-    lookingUp: '위치 검색 중…',
-    gettingLocation: '위치 확인 중…',
-    fetchingSky: '하늘 데이터 가져오는 중…',
-    notFound: '위치를 찾을 수 없습니다. 다른 도시나 우편번호를 시도해보세요.',
-    lookupError: '위치를 검색할 수 없습니다. 다시 시도해주세요.',
-    geoNotSupported: '위치 서비스가 지원되지 않습니다.',
-    geoDenied: '위치 접근이 거부되었습니다. 도시나 우편번호를 입력해보세요.',
-    fetchError: '날씨 데이터를 가져올 수 없습니다. 다시 시도해주세요.',
-    noData: '이 날짜의 시간별 데이터가 없습니다.',
-    historical: '과거',
-    forecast: '예보',
-    live: '실시간',
-    daytime: '낮',
-    nighttime: '밤',
-    clearSky: '맑은 하늘',
-    prettyClouds: '예쁜 구름',
-    visibility: '가시거리',
-    conditions: '기상 조건',
-    howScored: '점수 산정 방법',
-    stunning: '환상적',
-    stunningDesc: '최고의 하늘 상태입니다. 카메라를 꺼내세요!',
-    beautiful: '아름다운',
-    beautifulDesc: '멋진 하늘. 맑은 시야와 아름다운 구름.',
-    decent: '괜찮은',
-    decentDesc: '적당한 하늘. 구름이 있지만 올려다볼 만합니다.',
-    meh: '별로',
-    mehDesc: '구름이 많거나 시야가 좋지 않습니다. 하늘이 쉬는 날.',
-    gloomy: '우울한',
-    gloomyDesc: '흐리거나 안개가 끼거나 폭풍우가 있는 상태입니다.',
-    methodIntro: '<strong>Sky Score</strong>는 네 가지 하위 점수의 합산입니다:',
-    methodClear: '<strong>맑은 하늘 (40%)</strong> — 구름 비율. 20–30%가 가장 높은 점수 — 적당한 구름이 시각적 흥미를 더합니다.',
-    methodClouds: '<strong>예쁜 구름 (25%)</strong> — 높은 고도의 구름은 드라마틱하고 사진에 잘 나옵니다. 낮은 구름은 감점.',
-    methodVis: '<strong>가시거리 (20%)</strong> — 높은 가시거리 = 더 선명하고 생생한 하늘.',
-    methodCond: '<strong>기상 조건 (15%)</strong> — 비, 안개, 폭풍은 점수를 낮춥니다.',
-    methodSrcLive: '<strong>실시간 & 예보</strong> (최대 16일) — Open-Meteo Forecast API',
-    methodSrcRecent: '<strong>최근 과거</strong> (≤3개월) — Open-Meteo Forecast API 과거 모드',
-    methodSrcOld: '<strong>오래된 기록</strong> (1940년까지) — Open-Meteo Archive API (ERA5)',
-    methodNoKey: 'API 키 불필요. 모든 데이터는 <strong>Open-Meteo</strong> 제공.',
-    dataSources: '데이터 출처:',
-    footer: 'Jessica의 아이디어에서 영감을 받았습니다',
-    weather: {0:'맑음',1:'대체로 맑음',2:'부분 흐림',3:'흐림',45:'안개',48:'서리 안개',51:'가벼운 이슬비',53:'이슬비',55:'강한 이슬비',56:'결빙 이슬비',57:'강한 결빙 이슬비',61:'약한 비',63:'보통 비',65:'강한 비',66:'결빙 비',67:'강한 결빙 비',71:'약한 눈',73:'보통 눈',75:'강한 눈',77:'싸락눈',80:'약한 소나기',81:'보통 소나기',82:'강한 소나기',85:'약한 눈 소나기',86:'강한 눈 소나기',95:'뇌우',96:'우박 동반 뇌우',99:'강한 우박 동반 뇌우'},
-    months: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
-    at: '',
-    forecastLimit: '예보는 최대 16일 후까지만 가능합니다.',
-    historyError: '과거 데이터를 가져올 수 없습니다.',
-    apiError: 'API 오류.',
-  },
-  ja: {
-    subtitle: '空はどれくらいフォトジェニック？過去・現在・未来。',
-    placeholder: '都市名または郵便番号を入力…',
-    score: 'スコア',
-    when: '日時',
-    now: '今',
-    useLocation: '現在地を使用',
-    lookingUp: '場所を検索中…',
-    gettingLocation: '現在地を取得中…',
-    fetchingSky: '空のデータを取得中…',
-    notFound: '場所が見つかりません。別の都市名や郵便番号をお試しください。',
-    lookupError: '場所を検索できませんでした。もう一度お試しください。',
-    geoNotSupported: '位置情報がサポートされていません。',
-    geoDenied: '位置情報へのアクセスが拒否されました。都市名や郵便番号を入力してください。',
-    fetchError: '天気データを取得できませんでした。もう一度お試しください。',
-    noData: 'この日の時間別データがありません。',
-    historical: '過去',
-    forecast: '予報',
-    live: 'リアルタイム',
-    daytime: '昼間',
-    nighttime: '夜間',
-    clearSky: '澄んだ空',
-    prettyClouds: '美しい雲',
-    visibility: '視界',
-    conditions: '天候',
-    howScored: 'スコアの算出方法',
-    stunning: '圧巻',
-    stunningDesc: '最高の空の状態です。カメラを持って外へ！',
-    beautiful: '美しい',
-    beautifulDesc: '素晴らしい空。澄んだ視界と美しい雲の形。',
-    decent: 'まずまず',
-    decentDesc: 'そこそこの空。雲はありますが、見上げる価値はあります。',
-    meh: 'いまいち',
-    mehDesc: '雲が多いか視界が悪い。空はお休み中。',
-    gloomy: '暗い',
-    gloomyDesc: '曇り、霧、または嵐の状態です。',
-    methodIntro: '<strong>Sky Score</strong>は4つのサブスコアの合成です：',
-    methodClear: '<strong>澄んだ空 (40%)</strong> — 雲量。20–30%が最高点 — 適度な雲が視覚的な面白さを加えます。',
-    methodClouds: '<strong>美しい雲 (25%)</strong> — 高高度・中高度の雲はドラマチックでフォトジェニック。低い雲は減点。',
-    methodVis: '<strong>視界 (20%)</strong> — 高い視界 = よりクリアで鮮やかな空。',
-    methodCond: '<strong>天候 (15%)</strong> — 雨、霧、嵐はスコアを下げます。',
-    methodSrcLive: '<strong>リアルタイム＆予報</strong>（最大16日）— Open-Meteo Forecast API',
-    methodSrcRecent: '<strong>最近の過去</strong>（≤3ヶ月）— Open-Meteo Forecast API 過去モード',
-    methodSrcOld: '<strong>過去の記録</strong>（1940年まで）— Open-Meteo Archive API（ERA5）',
-    methodNoKey: 'APIキー不要。すべてのデータは<strong>Open-Meteo</strong>から。',
-    dataSources: 'データソース：',
-    footer: 'Jessicaのアイデアからインスピレーションを得ました',
-    weather: {0:'快晴',1:'ほぼ快晴',2:'一部曇り',3:'曇り',45:'霧',48:'着氷性霧',51:'弱い霧雨',53:'霧雨',55:'強い霧雨',56:'着氷性霧雨',57:'強い着氷性霧雨',61:'弱い雨',63:'雨',65:'強い雨',66:'着氷性の雨',67:'強い着氷性の雨',71:'弱い雪',73:'雪',75:'強い雪',77:'雪あられ',80:'弱いにわか雨',81:'にわか雨',82:'激しいにわか雨',85:'弱いにわか雪',86:'強いにわか雪',95:'雷雨',96:'雹を伴う雷雨',99:'強い雹を伴う雷雨'},
-    months: ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
-    at: '',
-    forecastLimit: '予報は最大16日先まで利用可能です。',
-    historyError: '過去のデータを取得できませんでした。',
-    apiError: 'APIエラー。',
-  },
-  es: {
-    subtitle: '¿Qué tan fotogénico está el cielo? Pasado, presente o futuro.',
-    placeholder: 'Ingresa una ciudad o código postal…',
-    score: 'Puntaje',
-    when: 'Cuándo',
-    now: 'Ahora',
-    useLocation: 'Usar mi ubicación',
-    lookingUp: 'Buscando ubicación…',
-    gettingLocation: 'Obteniendo tu ubicación…',
-    fetchingSky: 'Obteniendo datos del cielo…',
-    notFound: 'Ubicación no encontrada. Intenta con otra ciudad o código postal.',
-    lookupError: 'No se pudo buscar la ubicación. Inténtalo de nuevo.',
-    geoNotSupported: 'Geolocalización no soportada.',
-    geoDenied: 'Acceso a ubicación denegado. Intenta escribir una ciudad o código postal.',
-    fetchError: 'No se pudieron obtener datos meteorológicos. Inténtalo de nuevo.',
-    noData: 'No hay datos horarios disponibles para esta fecha.',
-    historical: 'Histórico',
-    forecast: 'Pronóstico',
-    live: 'En vivo',
-    daytime: 'Día',
-    nighttime: 'Noche',
-    clearSky: 'Cielo despejado',
-    prettyClouds: 'Nubes bonitas',
-    visibility: 'Visibilidad',
-    conditions: 'Condiciones',
-    howScored: 'Cómo se calcula',
-    stunning: 'Impresionante',
-    stunningDesc: 'Condiciones excepcionales del cielo. ¡Toma tu cámara!',
-    beautiful: 'Hermoso',
-    beautifulDesc: 'Gran cielo. Vistas despejadas con hermosas formaciones de nubes.',
-    decent: 'Aceptable',
-    decentDesc: 'Cielo razonable. Algo de nubes pero aún vale la pena mirar.',
-    meh: 'Regular',
-    mehDesc: 'Muchas nubes o poca visibilidad. El cielo se tomó el día libre.',
-    gloomy: 'Sombrío',
-    gloomyDesc: 'Nublado, con niebla o condiciones de tormenta.',
-    methodIntro: '<strong>Sky Score</strong> es un compuesto de cuatro subpuntajes:',
-    methodClear: '<strong>Cielo despejado (40%)</strong> — Porcentaje de nubes. 20–30% obtiene la puntuación más alta — las nubes dispersas añaden interés visual.',
-    methodClouds: '<strong>Nubes bonitas (25%)</strong> — Las nubes altas y medias son dramáticas y fotogénicas. Las nubes bajas se penalizan.',
-    methodVis: '<strong>Visibilidad (20%)</strong> — Mayor visibilidad = cielos más nítidos y vívidos.',
-    methodCond: '<strong>Condiciones (15%)</strong> — Lluvia, niebla o tormentas reducen el puntaje.',
-    methodSrcLive: '<strong>En vivo y pronóstico</strong> (hasta 16 días) — Open-Meteo Forecast API',
-    methodSrcRecent: '<strong>Pasado reciente</strong> (≤3 meses) — Open-Meteo Forecast API modo histórico',
-    methodSrcOld: '<strong>Historia antigua</strong> (hasta 1940) — Open-Meteo Archive API (ERA5)',
-    methodNoKey: 'No se requiere clave API. Todos los datos de <strong>Open-Meteo</strong>.',
-    dataSources: 'Fuentes de datos:',
-    footer: 'Inspirado en una idea de Jessica',
-    weather: {0:'Cielo despejado',1:'Mayormente despejado',2:'Parcialmente nublado',3:'Nublado',45:'Niebla',48:'Niebla con escarcha',51:'Llovizna ligera',53:'Llovizna moderada',55:'Llovizna densa',56:'Llovizna helada',57:'Llovizna helada densa',61:'Lluvia ligera',63:'Lluvia moderada',65:'Lluvia fuerte',66:'Lluvia helada',67:'Lluvia helada fuerte',71:'Nevada ligera',73:'Nevada moderada',75:'Nevada fuerte',77:'Granizo fino',80:'Chubascos ligeros',81:'Chubascos moderados',82:'Chubascos violentos',85:'Chubascos de nieve ligeros',86:'Chubascos de nieve fuertes',95:'Tormenta',96:'Tormenta con granizo',99:'Tormenta con granizo fuerte'},
-    months: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
-    at: 'a las',
-    forecastLimit: 'El pronóstico solo está disponible hasta 16 días.',
-    historyError: 'No se pudieron obtener datos históricos.',
-    apiError: 'Error de API.',
-  }
+/* ========== i18n ========== */
+const i18n={
+en:{subtitle:'How photogenic is the sky? Past, present, or future.',placeholder:'Enter a city or zip code…',score:'Score',when:'When',now:'Now',useLocation:'Use my location',lookingUp:'Looking up location…',gettingLocation:'Getting your location…',fetchingSky:'Fetching sky data…',notFound:'Location not found. Try another city or zip code.',lookupError:'Could not look up location. Please try again.',geoNotSupported:'Geolocation not supported.',geoDenied:'Location access denied. Try typing a city or zip code instead.',fetchError:'Could not fetch weather data. Please try again.',noData:'No hourly data available for this date.',historical:'Historical',forecast:'Forecast',live:'Live',daytime:'Daytime',nighttime:'Nighttime',clearSky:'Clear Sky',prettyClouds:'Pretty Clouds',visibility:'Visibility',conditions:'Conditions',howScored:"How it's scored",stunning:'Stunning',stunningDesc:'Exceptional sky conditions. Grab your camera — this is as good as it gets.',beautiful:'Beautiful',beautifulDesc:'Great sky. Clear views with lovely cloud formations.',decent:'Decent',decentDesc:'Reasonable sky. Some cloud cover but still worth a look up.',meh:'Meh',mehDesc:'Heavy clouds or reduced visibility. The sky is taking a day off.',gloomy:'Gloomy',gloomyDesc:'Not great up there — overcast, foggy, or stormy conditions.',methodIntro:'<strong>Sky Score</strong> is a composite of four sub-scores:',methodClear:'<strong>Clear Sky (40%)</strong> — Cloud cover percentage. 20–30% scores highest — scattered clouds add visual interest.',methodClouds:'<strong>Pretty Clouds (25%)</strong> — High & mid-altitude clouds are dramatic and photogenic. Low clouds are penalized.',methodVis:'<strong>Visibility (20%)</strong> — Higher visibility = crisper, more vivid skies.',methodCond:'<strong>Conditions (15%)</strong> — Rain, fog, or storms reduce the score.',methodGolden:'<strong>Golden Hour Bonus</strong> — Scores near sunrise/sunset get up to +10 points because golden & blue hour light is the most photogenic.',methodSrcLive:'<strong>Live & forecast</strong> (up to 16 days) — Open-Meteo Forecast API',methodSrcRecent:'<strong>Recent past</strong> (≤3 months) — Open-Meteo Forecast API historical mode',methodSrcOld:'<strong>Older history</strong> (back to 1940) — Open-Meteo Archive API (ERA5)',methodNoKey:'No API key required. All data from <strong>Open-Meteo</strong>.',dataSources:'Data sources:',sunrise:'Sunrise',sunset:'Sunset',goldenHour:'Golden Hour',bestHour:'Best Hour Today',bestHourScore:'Sky Score',next7days:'7-Day Forecast',share:'Share',copyLink:'Copy Link',copied:'Copied!',recents:'Recents',forecastLimit:'Forecast only available up to 16 days ahead.',historyError:'Could not fetch historical data.',apiError:'API error.',weather:{0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',48:'Rime fog',51:'Light drizzle',53:'Moderate drizzle',55:'Dense drizzle',56:'Freezing drizzle',57:'Dense freezing drizzle',61:'Slight rain',63:'Moderate rain',65:'Heavy rain',66:'Freezing rain',67:'Heavy freezing rain',71:'Slight snow',73:'Moderate snow',75:'Heavy snow',77:'Snow grains',80:'Light rain showers',81:'Moderate rain showers',82:'Violent rain showers',85:'Light snow showers',86:'Heavy snow showers',95:'Thunderstorm',96:'Thunderstorm w/ hail',99:'Thunderstorm w/ heavy hail'},months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],days:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],at:'at'},
+ko:{subtitle:'사진으로 가장 잘 나오는 하늘 찾기',placeholder:'도시 또는 우편번호 입력…',score:'계산',when:'시간',now:'현재 시각',useLocation:'내 위치 사용',lookingUp:'위치 검색 중…',gettingLocation:'위치 확인 중…',fetchingSky:'하늘 데이터 가져오는 중…',notFound:'위치를 찾을 수 없습니다. 다른 도시나 우편번호를 시도해보세요.',lookupError:'위치를 검색할 수 없습니다. 다시 시도해주세요.',geoNotSupported:'위치 서비스가 지원되지 않습니다.',geoDenied:'위치 접근이 거부되었습니다. 도시나 우편번호를 입력해보세요.',fetchError:'날씨 데이터를 가져올 수 없습니다. 다시 시도해주세요.',noData:'이 날짜의 시간별 데이터가 없습니다.',historical:'과거',forecast:'예보',live:'실시간',daytime:'낮',nighttime:'밤',clearSky:'맑은 하늘',prettyClouds:'예쁜 구름',visibility:'가시거리',conditions:'기상 조건',howScored:'점수 산정 방법',stunning:'환상적',stunningDesc:'최고의 하늘 상태입니다. 카메라를 꺼내세요!',beautiful:'아름다운',beautifulDesc:'멋진 하늘. 맑은 시야와 아름다운 구름.',decent:'괜찮은',decentDesc:'적당한 하늘. 구름이 있지만 올려다볼 만합니다.',meh:'별로',mehDesc:'구름이 많거나 시야가 좋지 않습니다.',gloomy:'우울한',gloomyDesc:'흐리거나 안개가 끼거나 폭풍우가 있는 상태입니다.',methodIntro:'<strong>Sky Score</strong>는 네 가지 하위 점수의 합산입니다:',methodClear:'<strong>맑은 하늘 (40%)</strong> — 구름 비율. 20–30%가 최고점.',methodClouds:'<strong>예쁜 구름 (25%)</strong> — 높은 고도의 구름은 드라마틱합니다.',methodVis:'<strong>가시거리 (20%)</strong> — 높은 가시거리 = 더 선명한 하늘.',methodCond:'<strong>기상 조건 (15%)</strong> — 비, 안개, 폭풍은 감점.',methodGolden:'<strong>골든아워 보너스</strong> — 일출/일몰 근처 시간에 최대 +10점 추가.',methodSrcLive:'<strong>실시간 & 예보</strong> — Open-Meteo Forecast API',methodSrcRecent:'<strong>최근 과거</strong> — Open-Meteo 과거 모드',methodSrcOld:'<strong>오래된 기록</strong> — Open-Meteo Archive API',methodNoKey:'API 키 불필요. <strong>Open-Meteo</strong> 제공.',dataSources:'데이터 출처:',sunrise:'일출',sunset:'일몰',goldenHour:'골든아워',bestHour:'오늘의 최적 시간',bestHourScore:'스카이 스코어',next7days:'7일 예보',share:'공유',copyLink:'링크 복사',copied:'복사됨!',recents:'최근 검색',forecastLimit:'예보는 최대 16일까지.',historyError:'과거 데이터를 가져올 수 없습니다.',apiError:'API 오류.',weather:{0:'맑음',1:'대체로 맑음',2:'부분 흐림',3:'흐림',45:'안개',48:'서리 안개',51:'가벼운 이슬비',53:'이슬비',55:'강한 이슬비',56:'결빙 이슬비',57:'강한 결빙 이슬비',61:'약한 비',63:'보통 비',65:'강한 비',66:'결빙 비',67:'강한 결빙 비',71:'약한 눈',73:'보통 눈',75:'강한 눈',77:'싸락눈',80:'약한 소나기',81:'보통 소나기',82:'강한 소나기',85:'약한 눈 소나기',86:'강한 눈 소나기',95:'뇌우',96:'우박 동반 뇌우',99:'강한 우박 동반 뇌우'},months:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],days:['일','월','화','수','목','금','토'],at:''},
+ja:{subtitle:'空はどれくらいフォトジェニック？過去・現在・未来。',placeholder:'都市名または郵便番号を入力…',score:'スコア',when:'日時',now:'今',useLocation:'現在地を使用',lookingUp:'場所を検索中…',gettingLocation:'現在地を取得中…',fetchingSky:'空のデータを取得中…',notFound:'場所が見つかりません。',lookupError:'場所を検索できませんでした。',geoNotSupported:'位置情報がサポートされていません。',geoDenied:'位置情報へのアクセスが拒否されました。',fetchError:'天気データを取得できませんでした。',noData:'この日の時間別データがありません。',historical:'過去',forecast:'予報',live:'リアルタイム',daytime:'昼間',nighttime:'夜間',clearSky:'澄んだ空',prettyClouds:'美しい雲',visibility:'視界',conditions:'天候',howScored:'スコアの算出方法',stunning:'圧巻',stunningDesc:'最高の空の状態です。カメラを持って外へ！',beautiful:'美しい',beautifulDesc:'素晴らしい空。澄んだ視界と美しい雲。',decent:'まずまず',decentDesc:'そこそこの空。見上げる価値はあります。',meh:'いまいち',mehDesc:'雲が多いか視界が悪い。',gloomy:'暗い',gloomyDesc:'曇り、霧、または嵐の状態です。',methodIntro:'<strong>Sky Score</strong>は4つのサブスコアの合成です：',methodClear:'<strong>澄んだ空 (40%)</strong> — 雲量。20–30%が最高点。',methodClouds:'<strong>美しい雲 (25%)</strong> — 高高度の雲はフォトジェニック。',methodVis:'<strong>視界 (20%)</strong> — 高い視界 = クリアな空。',methodCond:'<strong>天候 (15%)</strong> — 雨、霧、嵐はスコアを下げます。',methodGolden:'<strong>ゴールデンアワーボーナス</strong> — 日の出・日の入り前後は最大+10点。',methodSrcLive:'<strong>リアルタイム＆予報</strong> — Open-Meteo Forecast API',methodSrcRecent:'<strong>最近の過去</strong> — Open-Meteo 過去モード',methodSrcOld:'<strong>過去の記録</strong> — Open-Meteo Archive API',methodNoKey:'APIキー不要。<strong>Open-Meteo</strong>から。',dataSources:'データソース：',sunrise:'日の出',sunset:'日の入り',goldenHour:'ゴールデンアワー',bestHour:'今日のベスト時間',bestHourScore:'スカイスコア',next7days:'7日間予報',share:'共有',copyLink:'リンクコピー',copied:'コピー済み！',recents:'最近の検索',forecastLimit:'予報は最大16日先まで。',historyError:'過去のデータを取得できませんでした。',apiError:'APIエラー。',weather:{0:'快晴',1:'ほぼ快晴',2:'一部曇り',3:'曇り',45:'霧',48:'着氷性霧',51:'弱い霧雨',53:'霧雨',55:'強い霧雨',56:'着氷性霧雨',57:'強い着氷性霧雨',61:'弱い雨',63:'雨',65:'強い雨',66:'着氷性の雨',67:'強い着氷性の雨',71:'弱い雪',73:'雪',75:'強い雪',77:'雪あられ',80:'弱いにわか雨',81:'にわか雨',82:'激しいにわか雨',85:'弱いにわか雪',86:'強いにわか雪',95:'雷雨',96:'雹を伴う雷雨',99:'強い雹を伴う雷雨'},months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],days:['日','月','火','水','木','金','土'],at:''},
+zh:{subtitle:'天空有多上镜？过去、现在、未来。',placeholder:'输入城市或邮编…',score:'评分',when:'时间',now:'现在',useLocation:'使用我的位置',lookingUp:'正在查找位置…',gettingLocation:'正在获取位置…',fetchingSky:'正在获取天空数据…',notFound:'未找到该位置。',lookupError:'无法查找位置，请重试。',geoNotSupported:'不支持地理定位。',geoDenied:'位置访问被拒绝。',fetchError:'无法获取天气数据。',noData:'该日期没有数据。',historical:'历史',forecast:'预报',live:'实时',daytime:'白天',nighttime:'夜晚',clearSky:'晴朗天空',prettyClouds:'美丽云彩',visibility:'能见度',conditions:'天气状况',howScored:'评分方法',stunning:'绝美',stunningDesc:'天空状况极佳。拿起相机！',beautiful:'美丽',beautifulDesc:'天空很棒。清晰视野和美丽云层。',decent:'还不错',decentDesc:'天空尚可。有些云但值得看看。',meh:'一般',mehDesc:'云层较厚或能见度低。',gloomy:'阴沉',gloomyDesc:'阴天、有雾或暴风雨。',methodIntro:'<strong>Sky Score</strong> 由四个子分数组成：',methodClear:'<strong>晴朗天空 (40%)</strong> — 云量百分比。',methodClouds:'<strong>美丽云彩 (25%)</strong> — 高空云层更上镜。',methodVis:'<strong>能见度 (20%)</strong> — 能见度越高越好。',methodCond:'<strong>天气状况 (15%)</strong> — 雨雾暴风雨减分。',methodGolden:'<strong>黄金时段加分</strong> — 日出日落前后最多加10分。',methodSrcLive:'<strong>实时与预报</strong> — Open-Meteo Forecast API',methodSrcRecent:'<strong>近期历史</strong> — Open-Meteo 历史模式',methodSrcOld:'<strong>更早历史</strong> — Open-Meteo Archive API',methodNoKey:'无需API密钥。数据来自 <strong>Open-Meteo</strong>。',dataSources:'数据来源：',sunrise:'日出',sunset:'日落',goldenHour:'黄金时段',bestHour:'今日最佳时间',bestHourScore:'天空评分',next7days:'7天预报',share:'分享',copyLink:'复制链接',copied:'已复制！',recents:'最近搜索',forecastLimit:'预报仅提供最多16天。',historyError:'无法获取历史数据。',apiError:'API错误。',weather:{0:'晴',1:'大部晴朗',2:'局部多云',3:'阴天',45:'雾',48:'雾凇',51:'小毛毛雨',53:'毛毛雨',55:'大毛毛雨',56:'冻毛毛雨',57:'大冻毛毛雨',61:'小雨',63:'中雨',65:'大雨',66:'冻雨',67:'大冻雨',71:'小雪',73:'中雪',75:'大雪',77:'雪粒',80:'小阵雨',81:'中阵雨',82:'大阵雨',85:'小阵雪',86:'大阵雪',95:'雷暴',96:'雷暴伴冰雹',99:'雷暴伴大冰雹'},months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],days:['日','一','二','三','四','五','六'],at:''},
+es:{subtitle:'¿Qué tan fotogénico está el cielo? Pasado, presente o futuro.',placeholder:'Ingresa una ciudad o código postal…',score:'Puntaje',when:'Cuándo',now:'Ahora',useLocation:'Usar mi ubicación',lookingUp:'Buscando ubicación…',gettingLocation:'Obteniendo tu ubicación…',fetchingSky:'Obteniendo datos del cielo…',notFound:'Ubicación no encontrada.',lookupError:'No se pudo buscar la ubicación.',geoNotSupported:'Geolocalización no soportada.',geoDenied:'Acceso a ubicación denegado.',fetchError:'No se pudieron obtener datos meteorológicos.',noData:'No hay datos para esta fecha.',historical:'Histórico',forecast:'Pronóstico',live:'En vivo',daytime:'Día',nighttime:'Noche',clearSky:'Cielo despejado',prettyClouds:'Nubes bonitas',visibility:'Visibilidad',conditions:'Condiciones',howScored:'Cómo se calcula',stunning:'Impresionante',stunningDesc:'¡Condiciones excepcionales! Toma tu cámara.',beautiful:'Hermoso',beautifulDesc:'Gran cielo con hermosas nubes.',decent:'Aceptable',decentDesc:'Cielo razonable. Algo de nubes.',meh:'Regular',mehDesc:'Muchas nubes o poca visibilidad.',gloomy:'Sombrío',gloomyDesc:'Nublado, niebla o tormenta.',methodIntro:'<strong>Sky Score</strong> es un compuesto de cuatro subpuntajes:',methodClear:'<strong>Cielo despejado (40%)</strong> — Porcentaje de nubes.',methodClouds:'<strong>Nubes bonitas (25%)</strong> — Nubes altas son fotogénicas.',methodVis:'<strong>Visibilidad (20%)</strong> — Mayor visibilidad = cielos más nítidos.',methodCond:'<strong>Condiciones (15%)</strong> — Lluvia, niebla reducen el puntaje.',methodGolden:'<strong>Bonificación Hora Dorada</strong> — Hasta +10 puntos cerca del amanecer/atardecer.',methodSrcLive:'<strong>En vivo y pronóstico</strong> — Open-Meteo Forecast API',methodSrcRecent:'<strong>Pasado reciente</strong> — Open-Meteo modo histórico',methodSrcOld:'<strong>Historia antigua</strong> — Open-Meteo Archive API',methodNoKey:'Sin clave API. Datos de <strong>Open-Meteo</strong>.',dataSources:'Fuentes de datos:',sunrise:'Amanecer',sunset:'Atardecer',goldenHour:'Hora Dorada',bestHour:'Mejor Hora Hoy',bestHourScore:'Sky Score',next7days:'Pronóstico 7 Días',share:'Compartir',copyLink:'Copiar enlace',copied:'¡Copiado!',recents:'Recientes',forecastLimit:'Pronóstico hasta 16 días.',historyError:'No se pudieron obtener datos históricos.',apiError:'Error de API.',weather:{0:'Cielo despejado',1:'Mayormente despejado',2:'Parcialmente nublado',3:'Nublado',45:'Niebla',48:'Niebla con escarcha',51:'Llovizna ligera',53:'Llovizna moderada',55:'Llovizna densa',56:'Llovizna helada',57:'Llovizna helada densa',61:'Lluvia ligera',63:'Lluvia moderada',65:'Lluvia fuerte',66:'Lluvia helada',67:'Lluvia helada fuerte',71:'Nevada ligera',73:'Nevada moderada',75:'Nevada fuerte',77:'Granizo fino',80:'Chubascos ligeros',81:'Chubascos moderados',82:'Chubascos violentos',85:'Chubascos de nieve ligeros',86:'Chubascos de nieve fuertes',95:'Tormenta',96:'Tormenta con granizo',99:'Tormenta con granizo fuerte'},months:['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],days:['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'],at:'a las'}
 };
 
-function t(key) { return i18n[lang][key] || i18n.en[key] || key; }
+function t(k){return i18n[lang][k]||i18n.en[k]||k}
+function setLang(l){lang=l;document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));$('subtitle').textContent=t('subtitle');$('cityInput').placeholder=t('placeholder');$('searchBtn').textContent=t('score');$('whenLabel').textContent=t('when');$('nowBtn').textContent=t('now');$('gpsLabel').textContent=t('useLocation');renderRecents();}
+document.querySelectorAll('.lang-btn').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.lang)));
 
-function setLang(newLang) {
-  lang = newLang;
-  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
-  $('subtitle').textContent = t('subtitle');
-  $('cityInput').placeholder = t('placeholder');
-  $('searchBtn').textContent = t('score');
-  $('whenLabel').textContent = t('when');
-  $('nowBtn').textContent = t('now');
-  $('gpsLabel').textContent = t('useLocation');
-  $('footerText').textContent = t('footer');
-}
-
-document.querySelectorAll('.lang-btn').forEach(btn => {
-  btn.addEventListener('click', () => setLang(btn.dataset.lang));
-});
-
-function setNow() {
-  const now = new Date();
-  $('dateInput').value = localDateStr(now);
-  $('timeInput').value = pad(now.getHours()) + ':' + pad(now.getMinutes());
-}
-function pad(n) { return String(n).padStart(2, '0'); }
-function localDateStr(d) { return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
+/* ========== Utilities ========== */
+function pad(n){return String(n).padStart(2,'0')}
+function localDateStr(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function setNow(){const n=new Date();$('dateInput').value=localDateStr(n);$('timeInput').value=pad(n.getHours())+':'+pad(n.getMinutes());}
 setNow();
 
-$('nowBtn').addEventListener('click', setNow);
-$('cityInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('searchBtn').click(); });
+$('nowBtn').addEventListener('click',setNow);
+$('homeLink').addEventListener('click',e=>{e.preventDefault();$('cityInput').value='';$('output').innerHTML='';setNow();resetBackground();$('cityInput').focus();});
+$('cityInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){closeAuto();$('searchBtn').click();}
+  else if(e.key==='ArrowDown'){e.preventDefault();moveAutoFocus(1);}
+  else if(e.key==='ArrowUp'){e.preventDefault();moveAutoFocus(-1);}
+  else if(e.key==='Escape'){closeAuto();}
+});
 
-$('searchBtn').addEventListener('click', async () => {
-  const input = $('cityInput').value.trim();
-  if (!input) return;
+/* ========== Autocomplete ========== */
+let autoTimer=null, autoFocusIdx=-1;
+const autoDrop=$('autoDropdown');
+
+$('cityInput').addEventListener('input',()=>{
+  clearTimeout(autoTimer);
+  const val=$('cityInput').value.trim();
+  if(val.length<2){closeAuto();return;}
+  autoTimer=setTimeout(()=>fetchSuggestions(val),250);
+});
+
+$('cityInput').addEventListener('blur',()=>{setTimeout(closeAuto,200);});
+
+async function fetchSuggestions(q){
+  try{
+    const res=await fetch(`${GEOCODE_URL}?name=${encodeURIComponent(q)}&count=6&language=en`);
+    const data=await res.json();
+    if(!data.results||!data.results.length){closeAuto();return;}
+    autoFocusIdx=-1;
+    autoDrop.innerHTML=data.results.map((r,i)=>{
+      const name=r.name;
+      const region=[r.admin1,r.country].filter(Boolean).join(', ');
+      return `<div class="auto-item" data-idx="${i}" data-lat="${r.latitude}" data-lon="${r.longitude}" data-name="${name}${region?', '+region:''}"><span class="auto-item-name">${name}</span><span class="auto-item-region">${region}</span></div>`;
+    }).join('');
+    autoDrop.classList.add('open');
+    autoDrop.querySelectorAll('.auto-item').forEach(item=>{
+      item.addEventListener('mousedown',e=>{
+        e.preventDefault();
+        const fullName=item.dataset.name;
+        $('cityInput').value=fullName;
+        closeAuto();
+        fetchWeather(+item.dataset.lat,+item.dataset.lon,fullName);
+      });
+    });
+  }catch(e){closeAuto();}
+}
+
+function closeAuto(){autoDrop.classList.remove('open');autoDrop.innerHTML='';autoFocusIdx=-1;}
+
+function moveAutoFocus(dir){
+  const items=autoDrop.querySelectorAll('.auto-item');
+  if(!items.length)return;
+  autoFocusIdx+=dir;
+  if(autoFocusIdx<0)autoFocusIdx=items.length-1;
+  if(autoFocusIdx>=items.length)autoFocusIdx=0;
+  items.forEach((it,i)=>it.classList.toggle('active',i===autoFocusIdx));
+  if(autoFocusIdx>=0){
+    const sel=items[autoFocusIdx];
+    $('cityInput').value=sel.dataset.name;
+  }
+}
+
+/* ========== Recents ========== */
+function getRecents(){try{return JSON.parse(localStorage.getItem('skyRecents')||'[]')}catch{return[]}}
+function saveRecents(r){localStorage.setItem('skyRecents',JSON.stringify(r))}
+function addRecent(name,lat,lon){let r=getRecents();r=r.filter(x=>x.name!==name);r.unshift({name,lat,lon});if(r.length>8)r=r.slice(0,8);saveRecents(r);renderRecents();}
+function removeRecent(name){saveRecents(getRecents().filter(x=>x.name!==name));renderRecents();}
+function renderRecents(){const r=getRecents(),sec=$('recentsSection');if(!r.length){sec.innerHTML='';return;}
+sec.innerHTML=`<div class="recents-label">${t('recents')}</div><div class="recents-bar">${r.map(x=>`<div class="recent-chip" data-lat="${x.lat}" data-lon="${x.lon}" data-name="${x.name}"><span>${x.name.split(',')[0]}</span><span class="recent-remove" data-name="${x.name}">×</span></div>`).join('')}</div>`;
+sec.querySelectorAll('.recent-chip').forEach(c=>{c.addEventListener('click',e=>{if(e.target.classList.contains('recent-remove')){removeRecent(e.target.dataset.name);return;}fetchWeather(+c.dataset.lat,+c.dataset.lon,c.dataset.name);});});}
+renderRecents();
+
+/* ========== Sound ========== */
+const AudioCtx=window.AudioContext||window.webkitAudioContext;
+function playTone(score){
+  try{const ctx=new AudioCtx(),o=ctx.createOscillator(),g=ctx.createGain();
+  o.connect(g);g.connect(ctx.destination);
+  o.type='sine';
+  if(score>=85){o.frequency.value=880;g.gain.value=0.08;} // high bright
+  else if(score>=70){o.frequency.value=660;g.gain.value=0.07;}
+  else if(score>=50){o.frequency.value=440;g.gain.value=0.06;}
+  else if(score>=30){o.frequency.value=330;g.gain.value=0.05;}
+  else{o.frequency.value=220;g.gain.value=0.04;} // low rumble
+  o.start();g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.2);
+  o.stop(ctx.currentTime+1.3);
+  setTimeout(()=>ctx.close(),1500);
+  }catch(e){}
+}
+
+/* ========== Search ========== */
+$('searchBtn').addEventListener('click',async()=>{
+  const input=$('cityInput').value.trim();if(!input)return;
   showStatus(t('lookingUp'));
-  try {
-    const isZip = /^\d{4,10}(-\d{1,4})?$/.test(input);
-
-    if (isZip) {
-      const zipRes = await fetch(`https://api.zippopotam.us/us/${input.split('-')[0]}`);
-      if (!zipRes.ok) {
-        return await searchByName(input);
-      }
-      const zipData = await zipRes.json();
-      const place = zipData.places[0];
-      const lat = parseFloat(place.latitude);
-      const lon = parseFloat(place.longitude);
-      const name = `${place['place name']}, ${place['state abbreviation']} ${input}`;
-      await fetchWeather(lat, lon, name);
-    } else {
-      await searchByName(input);
+  try{
+    if(/^\d{4,10}(-\d{1,4})?$/.test(input)){
+      const r=await fetch(`https://api.zippopotam.us/us/${input.split('-')[0]}`);
+      if(!r.ok)return await searchByName(input);
+      const d=await r.json(),p=d.places[0];
+      return await fetchWeather(+p.latitude,+p.longitude,`${p['place name']}, ${p['state abbreviation']} ${input}`);
     }
-  } catch (e) { showError(t('lookupError')); }
+    await searchByName(input);
+  }catch(e){showError(t('lookupError'))}
 });
 
-async function searchByName(city) {
-  const geo = await fetch(`${GEOCODE_URL}?name=${encodeURIComponent(city)}&count=1&language=en`).then(r => r.json());
-  if (!geo.results?.length) return showError(t('notFound'));
-  const loc = geo.results[0];
-  const name = `${loc.name}${loc.admin1 ? ', ' + loc.admin1 : ''}${loc.country ? ', ' + loc.country : ''}`;
-  await fetchWeather(loc.latitude, loc.longitude, name);
+async function searchByName(city){
+  const g=await fetch(`${GEOCODE_URL}?name=${encodeURIComponent(city)}&count=1&language=en`).then(r=>r.json());
+  if(!g.results?.length)return showError(t('notFound'));
+  const l=g.results[0],name=`${l.name}${l.admin1?', '+l.admin1:''}${l.country?', '+l.country:''}`;
+  await fetchWeather(l.latitude,l.longitude,name);
 }
 
-$('gpsBtn').addEventListener('click', () => {
-  if (!navigator.geolocation) return showError(t('geoNotSupported'));
+$('gpsBtn').addEventListener('click',()=>{
+  if(!navigator.geolocation)return showError(t('geoNotSupported'));
   showStatus(t('gettingLocation'));
-  navigator.geolocation.getCurrentPosition(
-    async pos => {
-      const lat = pos.coords.latitude;
-      const lon = pos.coords.longitude;
-      let name = `${lat.toFixed(2)}°, ${lon.toFixed(2)}°`;
-      try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=14&addressdetails=1`);
-        const geo = await res.json();
-        if (geo && geo.address) {
-          const a = geo.address;
-          const city = a.city || a.town || a.village || a.hamlet || a.suburb || a.municipality || '';
-          const state = a.state || a.county || '';
-          const country = a.country || '';
-          const parts = [city, state, country].filter(Boolean);
-          if (parts.length) name = parts.join(', ');
-        }
-      } catch (e) { /* fall back to coords */ }
-      await fetchWeather(lat, lon, name);
-    },
-    () => showError(t('geoDenied'))
-  );
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    const lat=pos.coords.latitude,lon=pos.coords.longitude;
+    let name=`${lat.toFixed(2)}°, ${lon.toFixed(2)}°`;
+    try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=14&addressdetails=1`);const g=await r.json();if(g?.address){const a=g.address;const c=a.city||a.town||a.village||a.hamlet||a.suburb||a.municipality||'';const s=a.state||a.county||'';const co=a.country||'';const p=[c,s,co].filter(Boolean);if(p.length)name=p.join(', ');}}catch(e){}
+    await fetchWeather(lat,lon,name);
+  },()=>showError(t('geoDenied')));
 });
 
-function getSelectedDateTime() {
-  const dateVal = $('dateInput').value;
-  const timeVal = $('timeInput').value || '12:00';
-  if (!dateVal) { setNow(); return getSelectedDateTime(); }
-  const [y, m, d] = dateVal.split('-').map(Number);
-  const [hh, mm] = timeVal.split(':').map(Number);
-  return new Date(y, m - 1, d, hh, mm);
-}
+function getSelectedDateTime(){const d=$('dateInput').value,ti=$('timeInput').value||'12:00';if(!d){setNow();return getSelectedDateTime();}const[y,m,da]=d.split('-').map(Number),[h,mi]=ti.split(':').map(Number);return new Date(y,m-1,da,h,mi);}
+function getTimeMode(target){const dh=(target-new Date())/36e5;if(Math.abs(dh)<1)return'now';return dh<0?'past':'future';}
 
-function getTimeMode(target) {
-  const diffH = (target - new Date()) / 36e5;
-  if (Math.abs(diffH) < 1) return 'now';
-  return diffH < 0 ? 'past' : 'future';
-}
-
-async function fetchWeather(lat, lon, name) {
+async function fetchWeather(lat,lon,name){
   showStatus(t('fetchingSky'));
-  const target = getSelectedDateTime();
-  const mode = getTimeMode(target);
-  const dateStr = localDateStr(target);
-  const hourlyVars = 'cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,visibility,weather_code,is_day';
-
-  try {
+  const target=getSelectedDateTime(),mode=getTimeMode(target),dateStr=localDateStr(target);
+  const hVars='cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,visibility,weather_code,is_day';
+  try{
     let data;
-
-    if (mode === 'now') {
-      const params = `latitude=${lat}&longitude=${lon}&current=cloud_cover,weather_code,visibility,is_day&hourly=${hourlyVars}&forecast_hours=6&timezone=auto`;
-      data = await fetch(`${FORECAST_URL}?${params}`).then(r => r.json());
-      if (data.error) return showError(data.reason || t('apiError'));
-      return renderResult(data, name, lat, lon, target, mode, true);
+    if(mode==='now'){
+      const p=`latitude=${lat}&longitude=${lon}&current=cloud_cover,weather_code,visibility,is_day&hourly=${hVars}&daily=sunrise,sunset&forecast_days=7&timezone=auto`;
+      data=await fetch(`${FORECAST_URL}?${p}`).then(r=>r.json());
+      if(data.error)return showError(data.reason||t('apiError'));
+      return renderResult(data,name,lat,lon,target,mode,true);
     }
-
-    if (mode === 'future') {
-      const params = `latitude=${lat}&longitude=${lon}&hourly=${hourlyVars}&start_date=${dateStr}&end_date=${dateStr}&timezone=auto`;
-      data = await fetch(`${FORECAST_URL}?${params}`).then(r => r.json());
-      if (data.error) return showError(data.reason || t('forecastLimit'));
-      return renderResult(data, name, lat, lon, target, mode, false);
+    if(mode==='future'){
+      const endDate=new Date(target);endDate.setDate(endDate.getDate()+6);
+      const maxDate=new Date();maxDate.setDate(maxDate.getDate()+16);
+      if(endDate>maxDate)endDate.setTime(maxDate.getTime());
+      const p=`latitude=${lat}&longitude=${lon}&hourly=${hVars}&daily=sunrise,sunset&start_date=${dateStr}&end_date=${localDateStr(endDate)}&timezone=auto`;
+      data=await fetch(`${FORECAST_URL}?${p}`).then(r=>r.json());
+      if(data.error)return showError(data.reason||t('forecastLimit'));
+      return renderResult(data,name,lat,lon,target,mode,false);
     }
-
-    // Past
-    const daysDiff = Math.floor((new Date() - target) / 864e5);
-    const apiUrl = daysDiff <= 92 ? FORECAST_URL : ARCHIVE_URL;
-    const params = `latitude=${lat}&longitude=${lon}&hourly=${hourlyVars}&start_date=${dateStr}&end_date=${dateStr}&timezone=auto`;
-    data = await fetch(`${apiUrl}?${params}`).then(r => r.json());
-    if (data.error) return showError(data.reason || t('historyError'));
-    renderResult(data, name, lat, lon, target, mode, false);
-
-  } catch (e) {
-    console.error(e);
-    showError(t('fetchError'));
-  }
+    const dd=Math.floor((new Date()-target)/864e5),url=dd<=92?FORECAST_URL:ARCHIVE_URL;
+    const p=`latitude=${lat}&longitude=${lon}&hourly=${hVars}&daily=sunrise,sunset&start_date=${dateStr}&end_date=${dateStr}&timezone=auto`;
+    data=await fetch(`${url}?${p}`).then(r=>r.json());
+    if(data.error)return showError(data.reason||t('historyError'));
+    renderResult(data,name,lat,lon,target,mode,false);
+  }catch(e){console.error(e);showError(t('fetchError'));}
 }
 
-/* ---------- SCORING ---------- */
+/* ========== Scoring ========== */
+function computeFromCurrent(d){const c=d.current,h=d.hourly;return calcScore(c.cloud_cover,c.visibility/1000,c.weather_code,c.is_day,avg(h.cloud_cover_high||[0]),avg(h.cloud_cover_mid||[0]),avg(h.cloud_cover_low||[0]));}
 
-function computeScoreFromCurrent(data) {
-  const c = data.current;
-  const h = data.hourly;
-  return score(c.cloud_cover, c.visibility/1000, c.weather_code, c.is_day,
-    avg(h.cloud_cover_high||[0]), avg(h.cloud_cover_mid||[0]), avg(h.cloud_cover_low||[0]));
+function computeFromHourly(h,idx){
+  const s=i=>Math.max(0,Math.min(i,h.cloud_cover.length-1));
+  const w0=s(idx-2),w1=s(idx+3);
+  const sl=a=>{if(!a)return[0];const x=a.slice(w0,w1+1);return x.length?x:[0]};
+  return calcScore(h.cloud_cover[s(idx)],(h.visibility?h.visibility[s(idx)]:24000)/1000,h.weather_code[s(idx)],h.is_day?h.is_day[s(idx)]:1,avg(sl(h.cloud_cover_high)),avg(sl(h.cloud_cover_mid)),avg(sl(h.cloud_cover_low)));
 }
 
-function computeScoreFromHourly(hourly, idx) {
-  const safe = i => Math.max(0, Math.min(i, hourly.cloud_cover.length - 1));
-  const wStart = safe(idx - 2), wEnd = safe(idx + 3);
-  const sl = arr => { if (!arr) return [0]; const s = arr.slice(wStart, wEnd+1); return s.length ? s : [0]; };
-
-  return score(
-    hourly.cloud_cover[safe(idx)],
-    (hourly.visibility ? hourly.visibility[safe(idx)] : 24000) / 1000,
-    hourly.weather_code[safe(idx)],
-    hourly.is_day ? hourly.is_day[safe(idx)] : 1,
-    avg(sl(hourly.cloud_cover_high)),
-    avg(sl(hourly.cloud_cover_mid)),
-    avg(sl(hourly.cloud_cover_low))
-  );
+function calcScore(cc,vis,wc,isDay,aH,aM,aL){
+  let cs;if(cc<=10)cs=95;else if(cc<=30)cs=100;else if(cc<=50)cs=80;else if(cc<=70)cs=50;else if(cc<=85)cs=25;else cs=10;
+  const hb=Math.min(aH*1.2,100),mb=Math.min(aM*.8,80),lp=aL*.6;
+  let pc=Math.max(0,Math.min(100,(hb*.5+mb*.5)-lp));if(cc<5)pc=Math.min(pc,20);
+  let vs;if(vis>=20)vs=100;else if(vis>=10)vs=85;else if(vis>=5)vs=60;else if(vis>=2)vs=30;else vs=10;
+  let co=100;if([0,1].includes(wc))co=100;else if(wc===2)co=85;else if(wc===3)co=55;else if([45,48].includes(wc))co=20;else if([51,53,55,56,57,61,63,65,66,67].includes(wc))co=25;else if([71,73,75,77].includes(wc))co=35;else if([80,81,82].includes(wc))co=20;else if([85,86].includes(wc))co=30;else if([95,96,99].includes(wc))co=15;
+  const total=Math.round(cs*.4+pc*.25+vs*.2+co*.15);
+  return{total:Math.max(0,Math.min(100,total)),clearSky:Math.round(cs),prettyClouds:Math.round(pc),visibility:Math.round(vs),conditions:Math.round(co),raw:{cloudCover:cc,visibilityKm:Math.round(vis),weatherCode:wc,isDay,avgHigh:Math.round(aH),avgMid:Math.round(aM),avgLow:Math.round(aL)}};
 }
 
-function score(cloudCover, visKm, weatherCode, isDay, avgHigh, avgMid, avgLow) {
-  let clearSky;
-  if (cloudCover <= 10) clearSky = 95;
-  else if (cloudCover <= 30) clearSky = 100;
-  else if (cloudCover <= 50) clearSky = 80;
-  else if (cloudCover <= 70) clearSky = 50;
-  else if (cloudCover <= 85) clearSky = 25;
-  else clearSky = 10;
-
-  const hb = Math.min(avgHigh * 1.2, 100), mb = Math.min(avgMid * 0.8, 80), lp = avgLow * 0.6;
-  let pretty = Math.max(0, Math.min(100, (hb*0.5 + mb*0.5) - lp));
-  if (cloudCover < 5) pretty = Math.min(pretty, 20);
-
-  let vis;
-  if (visKm >= 20) vis = 100;
-  else if (visKm >= 10) vis = 85;
-  else if (visKm >= 5) vis = 60;
-  else if (visKm >= 2) vis = 30;
-  else vis = 10;
-
-  let cond = 100;
-  if ([0,1].includes(weatherCode)) cond = 100;
-  else if (weatherCode === 2) cond = 85;
-  else if (weatherCode === 3) cond = 55;
-  else if ([45,48].includes(weatherCode)) cond = 20;
-  else if ([51,53,55,56,57,61,63,65,66,67].includes(weatherCode)) cond = 25;
-  else if ([71,73,75,77].includes(weatherCode)) cond = 35;
-  else if ([80,81,82].includes(weatherCode)) cond = 20;
-  else if ([85,86].includes(weatherCode)) cond = 30;
-  else if ([95,96,99].includes(weatherCode)) cond = 15;
-
-  const total = Math.round(clearSky*0.4 + pretty*0.25 + vis*0.2 + cond*0.15);
-
-  return {
-    total: Math.max(0, Math.min(100, total)),
-    clearSky: Math.round(clearSky), prettyClouds: Math.round(pretty),
-    visibility: Math.round(vis), conditions: Math.round(cond),
-    raw: { cloudCover, visibilityKm: Math.round(visKm), weatherCode, isDay,
-           avgHigh: Math.round(avgHigh), avgMid: Math.round(avgMid), avgLow: Math.round(avgLow) }
-  };
+function applyGoldenBonus(score,hour,sunrise,sunset){
+  if(!sunrise||!sunset)return score;
+  const srH=new Date(sunrise).getHours()+new Date(sunrise).getMinutes()/60;
+  const ssH=new Date(sunset).getHours()+new Date(sunset).getMinutes()/60;
+  const distSR=Math.abs(hour-srH),distSS=Math.abs(hour-ssH);
+  const minDist=Math.min(distSR,distSS);
+  if(minDist<=1)return Math.min(100,score+10);
+  if(minDist<=1.5)return Math.min(100,score+6);
+  if(minDist<=2)return Math.min(100,score+3);
+  return score;
 }
 
-function avg(a) { if (!a||!a.length) return 0; return a.reduce((s,v)=>s+(v||0),0)/a.length; }
+function avg(a){if(!a||!a.length)return 0;return a.reduce((s,v)=>s+(v||0),0)/a.length}
 
-/* ---------- RENDERING ---------- */
-
-function getVerdict(s) {
-  if (s >= 85) return { label: t('stunning'), desc: t('stunningDesc'), color:'var(--score-excellent)' };
-  if (s >= 70) return { label: t('beautiful'), desc: t('beautifulDesc'), color:'var(--score-good)' };
-  if (s >= 50) return { label: t('decent'), desc: t('decentDesc'), color:'var(--score-fair)' };
-  if (s >= 30) return { label: t('meh'), desc: t('mehDesc'), color:'var(--score-poor)' };
-  return { label: t('gloomy'), desc: t('gloomyDesc'), color:'var(--score-bad)' };
+/* ========== Rendering ========== */
+function getVerdict(s){
+  if(s>=85)return{label:t('stunning'),desc:t('stunningDesc'),color:'var(--score-excellent)'};
+  if(s>=70)return{label:t('beautiful'),desc:t('beautifulDesc'),color:'var(--score-good)'};
+  if(s>=50)return{label:t('decent'),desc:t('decentDesc'),color:'var(--score-fair)'};
+  if(s>=30)return{label:t('meh'),desc:t('mehDesc'),color:'var(--score-poor)'};
+  return{label:t('gloomy'),desc:t('gloomyDesc'),color:'var(--score-bad)'};
 }
+function wLabel(c){return(i18n[lang].weather[c])||`Code ${c}`}
+function fmtDate(d){const M=i18n[lang].months;let h=d.getHours(),ap=h>=12?'PM':'AM';h=h%12||12;return`${M[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} ${t('at')} ${h}:${pad(d.getMinutes())} ${ap}`}
+function fmtTime(iso){if(!iso)return'--:--';const d=new Date(iso);let h=d.getHours(),ap=h>=12?'PM':'AM';h=h%12||12;return`${h}:${pad(d.getMinutes())} ${ap}`}
+function vColor(v){return v>=80?'var(--score-excellent)':v>=60?'var(--score-good)':v>=40?'var(--score-fair)':v>=20?'var(--score-poor)':'var(--score-bad)'}
 
-function weatherCodeLabel(c) {
-  return (i18n[lang].weather[c]) || `Code ${c}`;
-}
-
-function fmtDate(d) {
-  const M = i18n[lang].months;
-  let h = d.getHours(), ap = h >= 12 ? 'PM' : 'AM'; h = h%12||12;
-  const atWord = t('at');
-  return `${M[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} ${atWord} ${h}:${pad(d.getMinutes())} ${ap}`;
-}
-
-function renderResult(data, name, lat, lon, targetDate, mode, useCurrent) {
+function renderResult(data,name,lat,lon,targetDate,mode,useCurrent){
   let scores;
-  if (useCurrent && data.current) {
-    scores = computeScoreFromCurrent(data);
-  } else {
-    const h = data.hourly;
-    if (!h || !h.time || !h.time.length) return showError(t('noData'));
-    const tH = targetDate.getHours();
-    let bI = 0, bD = Infinity;
-    for (let i = 0; i < h.time.length; i++) {
-      const diff = Math.abs(new Date(h.time[i]).getHours() - tH);
-      if (diff < bD) { bD = diff; bI = i; }
-    }
-    scores = computeScoreFromHourly(h, bI);
+  const h=data.hourly;
+  const sunrise=data.daily?.sunrise?.[0]||null;
+  const sunset=data.daily?.sunset?.[0]||null;
+
+  if(useCurrent&&data.current){scores=computeFromCurrent(data);}
+  else{
+    if(!h||!h.time||!h.time.length)return showError(t('noData'));
+    const tH=targetDate.getHours();let bI=0,bD=Infinity;
+    for(let i=0;i<h.time.length;i++){const diff=Math.abs(new Date(h.time[i]).getHours()-tH);if(diff<bD){bD=diff;bI=i;}}
+    scores=computeFromHourly(h,bI);
   }
 
-  const v = getVerdict(scores.total);
-  const circ = 2 * Math.PI * 46;
-  const off = circ - (scores.total / 100) * circ;
-  const modeLabel = mode === 'past' ? t('historical') : mode === 'future' ? t('forecast') : t('live');
+  // Apply golden hour bonus
+  const targetHour=targetDate.getHours()+targetDate.getMinutes()/60;
+  scores.total=applyGoldenBonus(scores.total,targetHour,sunrise,sunset);
+  scores.isGolden=false;
+  if(sunrise&&sunset){const srH=new Date(sunrise).getHours()+new Date(sunrise).getMinutes()/60;const ssH=new Date(sunset).getHours()+new Date(sunset).getMinutes()/60;if(Math.min(Math.abs(targetHour-srH),Math.abs(targetHour-ssH))<=1.5)scores.isGolden=true;}
 
-  setBackground(scores.total, scores.raw.isDay);
+  lastResult={scores,name,lat,lon,targetDate,mode};
+  addRecent(name,lat,lon);
 
-  $('output').innerHTML = `
+  const v=getVerdict(scores.total);
+  const circ=2*Math.PI*46,off=circ-(scores.total/100)*circ;
+  const modeLabel=mode==='past'?t('historical'):mode==='future'?t('forecast'):t('live');
+  setBackground(scores.total,scores.raw.isDay);
+  playTone(scores.total);
+
+  // Best hour today
+  let bestHourHTML='';
+  if(h&&h.time&&h.time.length>=12){
+    let bestS=0,bestI=0;
+    for(let i=0;i<Math.min(h.time.length,24);i++){
+      const sc=computeFromHourly(h,i);
+      const hr=new Date(h.time[i]).getHours()+new Date(h.time[i]).getMinutes()/60;
+      const adj=applyGoldenBonus(sc.total,hr,sunrise,sunset);
+      if(adj>bestS){bestS=adj;bestI=i;}
+    }
+    const bestTime=new Date(h.time[bestI]);
+    bestHourHTML=`<div class="best-hour"><div class="best-hour-title">${t('bestHour')}</div><div class="best-hour-value">${fmtTime(h.time[bestI])}</div><div class="best-hour-score">${t('bestHourScore')}: ${bestS}</div></div>`;
+  }
+
+  // 7-day strip
+  let stripHTML='';
+  if(data.daily&&data.daily.time&&data.daily.time.length>1){
+    const dayNames=i18n[lang].days;
+    let strips='';
+    for(let d=0;d<data.daily.time.length&&d<7;d++){
+      const dayDate=new Date(data.daily.time[d]+'T12:00');
+      const dayIdx=dayDate.getDay();
+      // Find hourly index for noon on this day
+      let noonIdx=0;
+      if(h&&h.time){for(let i=0;i<h.time.length;i++){if(h.time[i].startsWith(data.daily.time[d])&&new Date(h.time[i]).getHours()>=11){noonIdx=i;break;}}}
+      const sc=h?computeFromHourly(h,noonIdx):{total:0};
+      const adj=applyGoldenBonus(sc.total,12,data.daily.sunrise?.[d],data.daily.sunset?.[d]);
+      strips+=`<div class="strip-day ${d===0?'active':''}" data-date="${data.daily.time[d]}"><div class="strip-day-name">${dayNames[dayIdx]}</div><div class="strip-day-score" style="color:${vColor(adj)}">${adj}</div><div class="strip-day-label">${data.daily.time[d].slice(5)}</div></div>`;
+    }
+    stripHTML=`<div class="forecast-strip"><div class="forecast-strip-title">${t('next7days')}</div><div class="strip-row">${strips}</div></div>`;
+  }
+
+  $('output').innerHTML=`
     <div class="result-card">
       <div class="location-name">${name} <span class="time-badge ${mode}">${modeLabel}</span></div>
       <div class="location-meta">
-        ${lat.toFixed(2)}°, ${lon.toFixed(2)}° · ${weatherCodeLabel(scores.raw.weatherCode)} · ${scores.raw.isDay ? t('daytime') : t('nighttime')}<br>
+        ${lat.toFixed(2)}°, ${lon.toFixed(2)}° · ${wLabel(scores.raw.weatherCode)} · ${scores.raw.isDay?t('daytime'):t('nighttime')}<br>
         ${fmtDate(targetDate)}
+        ${scores.isGolden?`<br><span class="golden-badge">✦ ${t('goldenHour')}</span>`:''}
       </div>
-
       <div class="score-section">
         <div class="score-ring">
-          <svg viewBox="0 0 110 110">
-            <circle class="bg-ring" cx="55" cy="55" r="46"/>
-            <circle class="fg-ring" cx="55" cy="55" r="46"
-              stroke="${v.color}" stroke-dasharray="${circ}" stroke-dashoffset="${off}"/>
-          </svg>
+          <svg viewBox="0 0 110 110"><circle class="bg-ring" cx="55" cy="55" r="46"/><circle class="fg-ring" cx="55" cy="55" r="46" stroke="${v.color}" stroke-dasharray="${circ}" stroke-dashoffset="${off}"/></svg>
           <div class="score-number" style="color:${v.color}">${scores.total}</div>
         </div>
-        <div class="score-info">
-          <h3 style="color:${v.color}">${v.label}</h3>
-          <p>${v.desc}</p>
-        </div>
+        <div class="score-info"><h3 style="color:${v.color}">${v.label}</h3><p>${v.desc}</p></div>
       </div>
-
       <div class="metrics">
-        ${metric(t('clearSky'), scores.clearSky)}
-        ${metric(t('prettyClouds'), scores.prettyClouds)}
-        ${metric(t('visibility'), scores.visibility)}
-        ${metric(t('conditions'), scores.conditions)}
+        ${metric(t('clearSky'),scores.clearSky)}${metric(t('prettyClouds'),scores.prettyClouds)}
+        ${metric(t('visibility'),scores.visibility)}${metric(t('conditions'),scores.conditions)}
+      </div>
+      ${sunrise?`<div class="sun-info">
+        <div class="sun-item"><div class="sun-icon">🌅</div><div class="sun-label">${t('sunrise')}</div><div class="sun-time">${fmtTime(sunrise)}</div></div>
+        <div class="sun-item"><div class="sun-icon">🌇</div><div class="sun-label">${t('sunset')}</div><div class="sun-time">${fmtTime(sunset)}</div></div>
+      </div>`:''}
+      ${bestHourHTML}
+      ${stripHTML}
+      <div class="share-bar">
+        <button class="share-btn" id="copyBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>${t('copyLink')}</button>
       </div>
     </div>
-
     <div class="methodology">
-      <button class="methodology-toggle" onclick="toggleMethodology(this)">
-        ${t('howScored')}
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
+      <button class="methodology-toggle" onclick="toggleMethodology(this)">${t('howScored')}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
       <div class="methodology-content" id="methodContent">
-        ${t('methodIntro')}<br><br>
-        ${t('methodClear')}<br><br>
-        ${t('methodClouds')}<br><br>
-        ${t('methodVis')}<br><br>
-        ${t('methodCond')}<br><br>
-        <div class="formula">Score = (ClearSky × 0.40) + (PrettyClouds × 0.25) + (Visibility × 0.20) + (Conditions × 0.15)</div>
-        <strong>${t('dataSources')}</strong><br>
-        • ${t('methodSrcLive')}<br>
-        • ${t('methodSrcRecent')}<br>
-        • ${t('methodSrcOld')}<br><br>
-        ${t('methodNoKey')}
+        ${t('methodIntro')}<br><br>${t('methodClear')}<br><br>${t('methodClouds')}<br><br>${t('methodVis')}<br><br>${t('methodCond')}<br><br>${t('methodGolden')}<br><br>
+        <div class="formula">Score = (ClearSky × 0.40) + (PrettyClouds × 0.25) + (Visibility × 0.20) + (Conditions × 0.15) + GoldenHourBonus</div>
+        <strong>${t('dataSources')}</strong><br>• ${t('methodSrcLive')}<br>• ${t('methodSrcRecent')}<br>• ${t('methodSrcOld')}<br><br>${t('methodNoKey')}
       </div>
     </div>
   `;
+
+  // Wire buttons
+  const copyBtn=$('copyBtn');
+  if(copyBtn)copyBtn.addEventListener('click',()=>{
+    navigator.clipboard.writeText(location.href);copyBtn.textContent=t('copied');setTimeout(()=>copyBtn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>${t('copyLink')}`,2000);
+  });
+
+  // Wire 7-day strip clicks
+  document.querySelectorAll('.strip-day').forEach(day=>{
+    day.addEventListener('click',async ()=>{
+      const dateStr=day.dataset.date;
+      $('dateInput').value=dateStr;
+      $('timeInput').value='12:00';
+      document.querySelectorAll('.strip-day').forEach(d=>d.classList.remove('active'));
+      day.classList.add('active');
+      const scrollY=window.scrollY;
+      await fetchWeather(lat,lon,name);
+      requestAnimationFrame(()=>window.scrollTo(0,scrollY));
+    });
+  });
 }
 
-function metric(label, val) {
-  const c = val >= 80 ? 'var(--score-excellent)' : val >= 60 ? 'var(--score-good)' : val >= 40 ? 'var(--score-fair)' : val >= 20 ? 'var(--score-poor)' : 'var(--score-bad)';
-  return `<div class="metric">
-    <div class="metric-label">${label}</div>
-    <div class="metric-value">${val}<span style="font-size:0.8rem;color:var(--text-muted);font-weight:300">/100</span></div>
-    <div class="metric-bar"><div class="metric-bar-fill" style="width:${val}%;background:${c}"></div></div>
-  </div>`;
-}
+function metric(label,val){const c=vColor(val);return`<div class="metric"><div class="metric-label">${label}</div><div class="metric-value">${val}<span style="font-size:.8rem;color:var(--text-muted);font-weight:300">/100</span></div><div class="metric-bar"><div class="metric-bar-fill" style="width:${val}%;background:${c}"></div></div></div>`}
 
-function toggleMethodology(btn) { btn.classList.toggle('open'); $('methodContent').classList.toggle('open'); }
-function showStatus(msg) { resetBackground(); $('output').innerHTML = `<div class="status"><span class="spinner"></span>${msg}</div>`; }
-function showError(msg) { resetBackground(); $('output').innerHTML = `<div class="error">${msg}</div>`; }
+function toggleMethodology(btn){btn.classList.toggle('open');$('methodContent').classList.toggle('open');}
+function showStatus(msg){resetBackground();$('output').innerHTML=`<div class="status"><span class="spinner"></span>${msg}</div>`}
+function showError(msg){resetBackground();$('output').innerHTML=`<div class="error">${msg}</div>`}
 
-function setBackground(score, isDay) {
-  const body = document.body;
-  const root = document.documentElement;
-  let bg, textColor, mutedColor, cardBg, borderColor, btnBg, btnText, metricBg;
-
-  if (!isDay) {
-    // Nighttime variants
-    if (score >= 85) {
-      bg = 'linear-gradient(160deg, #0B1026 0%, #1B2551 40%, #2A3A7A 100%)';
-    } else if (score >= 70) {
-      bg = 'linear-gradient(160deg, #0F1535 0%, #1E2D5E 40%, #2C3E6E 100%)';
-    } else if (score >= 50) {
-      bg = 'linear-gradient(160deg, #151820 0%, #252A38 40%, #353B4A 100%)';
-    } else if (score >= 30) {
-      bg = 'linear-gradient(160deg, #1A1A22 0%, #252530 40%, #30303D 100%)';
-    } else {
-      bg = 'linear-gradient(160deg, #141417 0%, #1E1E24 40%, #28282F 100%)';
-    }
-    textColor = '#E8E8F0';
-    mutedColor = '#9999B0';
-    cardBg = 'rgba(255,255,255,0.07)';
-    borderColor = 'rgba(255,255,255,0.1)';
-    btnBg = '#E8E8F0';
-    btnText = '#1A1A2E';
-    metricBg = 'rgba(255,255,255,0.05)';
-  } else {
-    // Daytime variants
-    if (score >= 85) {
-      bg = 'linear-gradient(160deg, #87CEEB 0%, #B0E0F6 30%, #E8F4FD 70%, #F0F7FB 100%)';
-    } else if (score >= 70) {
-      bg = 'linear-gradient(160deg, #9ECFDF 0%, #C4DFE8 30%, #E5EFF3 70%, #F2F6F8 100%)';
-    } else if (score >= 50) {
-      bg = 'linear-gradient(160deg, #B8C6CE 0%, #CDD6DA 30%, #E2E6E8 70%, #EEEFF0 100%)';
-    } else if (score >= 30) {
-      bg = 'linear-gradient(160deg, #A0A0A8 0%, #BCBCC2 30%, #D5D5D8 70%, #E5E5E7 100%)';
-    } else {
-      bg = 'linear-gradient(160deg, #7A7A82 0%, #9A9AA0 30%, #B8B8BC 70%, #D0D0D2 100%)';
-    }
-    if (score < 30) {
-      textColor = '#F0F0F0';
-      mutedColor = '#C8C8D0';
-      cardBg = 'rgba(255,255,255,0.12)';
-      borderColor = 'rgba(255,255,255,0.15)';
-      btnBg = '#F0F0F0';
-      btnText = '#2A2A2A';
-      metricBg = 'rgba(255,255,255,0.08)';
-    } else {
-      textColor = '#1A1A1A';
-      mutedColor = '#7A7A7A';
-      cardBg = 'rgba(255,255,255,0.85)';
-      borderColor = '#E8E5E0';
-      btnBg = '#1A1A1A';
-      btnText = '#F6F4F0';
-      metricBg = 'rgba(0,0,0,0.04)';
-    }
+function setBackground(score,isDay){
+  const b=document.body,r=document.documentElement;
+  let bg,tc,mc,cb,bb,btb,btt,mb;
+  if(!isDay){
+    bg=score>=85?'linear-gradient(160deg,#0B1026,#1B2551 40%,#2A3A7A)':score>=70?'linear-gradient(160deg,#0F1535,#1E2D5E 40%,#2C3E6E)':score>=50?'linear-gradient(160deg,#151820,#252A38 40%,#353B4A)':score>=30?'linear-gradient(160deg,#1A1A22,#252530 40%,#30303D)':'linear-gradient(160deg,#141417,#1E1E24 40%,#28282F)';
+    tc='#E8E8F0';mc='#9999B0';cb='rgba(255,255,255,0.07)';bb='rgba(255,255,255,0.1)';btb='#E8E8F0';btt='#1A1A2E';mb='rgba(255,255,255,0.05)';
+  }else{
+    bg=score>=85?'linear-gradient(160deg,#87CEEB,#B0E0F6 30%,#E8F4FD 70%,#F0F7FB)':score>=70?'linear-gradient(160deg,#9ECFDF,#C4DFE8 30%,#E5EFF3 70%,#F2F6F8)':score>=50?'linear-gradient(160deg,#B8C6CE,#CDD6DA 30%,#E2E6E8 70%,#EEEFF0)':score>=30?'linear-gradient(160deg,#A0A0A8,#BCBCC2 30%,#D5D5D8 70%,#E5E5E7)':'linear-gradient(160deg,#7A7A82,#9A9AA0 30%,#B8B8BC 70%,#D0D0D2)';
+    if(score<30){tc='#F0F0F0';mc='#C8C8D0';cb='rgba(255,255,255,0.12)';bb='rgba(255,255,255,0.15)';btb='#F0F0F0';btt='#2A2A2A';mb='rgba(255,255,255,0.08)';}
+    else{tc='#1A1A1A';mc='#7A7A7A';cb='rgba(255,255,255,0.85)';bb='#E8E5E0';btb='#1A1A1A';btt='#F6F4F0';mb='rgba(0,0,0,0.04)';}
   }
-
-  body.style.background = bg;
-  root.style.setProperty('--text', textColor);
-  root.style.setProperty('--text-muted', mutedColor);
-  root.style.setProperty('--card', cardBg);
-  root.style.setProperty('--border', borderColor);
-  root.style.setProperty('--btn-bg', btnBg);
-  root.style.setProperty('--btn-text', btnText);
-  root.style.setProperty('--metric-bg', metricBg);
+  b.style.background=bg;r.style.setProperty('--text',tc);r.style.setProperty('--text-muted',mc);r.style.setProperty('--card',cb);r.style.setProperty('--border',bb);r.style.setProperty('--btn-bg',btb);r.style.setProperty('--btn-text',btt);r.style.setProperty('--metric-bg',mb);
 }
 
-function resetBackground() {
-  const root = document.documentElement;
-  document.body.style.background = '';
-  root.style.setProperty('--text', '#1A1A1A');
-  root.style.setProperty('--text-muted', '#7A7A7A');
-  root.style.setProperty('--card', '#FFFFFF');
-  root.style.setProperty('--border', '#E8E5E0');
-  root.style.setProperty('--btn-bg', '#1A1A1A');
-  root.style.setProperty('--btn-text', '#F6F4F0');
-  root.style.setProperty('--metric-bg', '#F0EDE8');
-}
+function resetBackground(){const r=document.documentElement;document.body.style.background='';r.style.setProperty('--text','#1A1A1A');r.style.setProperty('--text-muted','#7A7A7A');r.style.setProperty('--card','#FFFFFF');r.style.setProperty('--border','#E8E5E0');r.style.setProperty('--btn-bg','#1A1A1A');r.style.setProperty('--btn-text','#F6F4F0');r.style.setProperty('--metric-bg','#F0EDE8');}
 </script>
 </body>
 </html>
