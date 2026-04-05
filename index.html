@@ -121,6 +121,11 @@
   .best-hour-value { font-size:1.3rem; font-weight:600; }
   .best-hour-score { font-size:.85rem; color:var(--text-muted); margin-top:2px; }
 
+  /* Generated Sky */
+  .sky-visual { border-radius:12px; overflow:hidden; margin-top:20px; position:relative; }
+  .sky-visual svg { width:100%; display:block; }
+  .sky-visual-label { position:absolute; bottom:10px; right:12px; font-size:.65rem; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,0.6); }
+
   /* Webcam */
   .webcam-section { margin-top:20px; border-radius:12px; overflow:hidden; position:relative; background:var(--metric-bg); transition:background .8s ease; }
   .webcam-img { width:100%; display:block; border-radius:12px; aspect-ratio:16/9; object-fit:cover; }
@@ -211,11 +216,11 @@ let lang='en', lastResult=null;
 
 /* ========== i18n ========== */
 const i18n={
-en:{subtitle:'How photogenic is the sky? Past, present, or future.',placeholder:'Enter a city or zip code…',score:'Score',when:'When',now:'Now',useLocation:'Use my location',lookingUp:'Looking up location…',gettingLocation:'Getting your location…',fetchingSky:'Fetching sky data…',notFound:'Location not found. Try another city or zip code.',lookupError:'Could not look up location. Please try again.',geoNotSupported:'Geolocation not supported.',geoDenied:'Location access denied. Try typing a city or zip code instead.',fetchError:'Could not fetch weather data. Please try again.',noData:'No hourly data available for this date.',historical:'Historical',forecast:'Forecast',live:'Live',daytime:'Daytime',nighttime:'Nighttime',clearSky:'Clear Sky',prettyClouds:'Pretty Clouds',visibility:'Visibility',conditions:'Conditions',howScored:"How it's scored",stunning:'Stunning',stunningDesc:'Exceptional sky conditions. Grab your camera — this is as good as it gets.',beautiful:'Beautiful',beautifulDesc:'Great sky. Clear views with lovely cloud formations.',decent:'Decent',decentDesc:'Reasonable sky. Some cloud cover but still worth a look up.',meh:'Meh',mehDesc:'Heavy clouds or reduced visibility. The sky is taking a day off.',gloomy:'Gloomy',gloomyDesc:'Not great up there — overcast, foggy, or stormy conditions.',methodIntro:'<strong>Sky Palette</strong> is a composite of four sub-scores:',methodClear:'<strong>Clear Sky (40%)</strong> — Cloud cover percentage. 20–30% scores highest — scattered clouds add visual interest.',methodClouds:'<strong>Pretty Clouds (25%)</strong> — High & mid-altitude clouds are dramatic and photogenic. Low clouds are penalized.',methodVis:'<strong>Visibility (20%)</strong> — Higher visibility = crisper, more vivid skies.',methodCond:'<strong>Conditions (15%)</strong> — Rain, fog, or storms reduce the score.',methodGolden:'<strong>Golden Hour Bonus</strong> — Scores near sunrise/sunset get up to +10 points because golden & blue hour light is the most photogenic.',methodSrcLive:'<strong>Live & forecast</strong> (up to 16 days) — Open-Meteo Forecast API',methodSrcRecent:'<strong>Recent past</strong> (≤3 months) — Open-Meteo Forecast API historical mode',methodSrcOld:'<strong>Older history</strong> (back to 1940) — Open-Meteo Archive API (ERA5)',methodNoKey:'No API key required. All data from <strong>Open-Meteo</strong>.',dataSources:'Data sources:',sunrise:'Sunrise',sunset:'Sunset',goldenHour:'Golden Hour',bestHour:'Best Hour Today',bestHourScore:'Sky Palette',next7days:'7-Day Forecast',share:'Share',copyLink:'Copy Link',copied:'Copied!',recents:'Recents',liveView:'Finding nearby sky view',liveNearby:'Live nearby',forecastLimit:'Forecast only available up to 16 days ahead.',historyError:'Could not fetch historical data.',apiError:'API error.',weather:{0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',48:'Rime fog',51:'Light drizzle',53:'Moderate drizzle',55:'Dense drizzle',56:'Freezing drizzle',57:'Dense freezing drizzle',61:'Slight rain',63:'Moderate rain',65:'Heavy rain',66:'Freezing rain',67:'Heavy freezing rain',71:'Slight snow',73:'Moderate snow',75:'Heavy snow',77:'Snow grains',80:'Light rain showers',81:'Moderate rain showers',82:'Violent rain showers',85:'Light snow showers',86:'Heavy snow showers',95:'Thunderstorm',96:'Thunderstorm w/ hail',99:'Thunderstorm w/ heavy hail'},months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],days:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],at:'at'},
-ko:{subtitle:'사진으로 가장 잘 나오는 하늘 찾기',placeholder:'도시 또는 우편번호 입력…',score:'계산',when:'시간',now:'현재 시각',useLocation:'내 위치 사용',lookingUp:'위치 검색 중…',gettingLocation:'위치 확인 중…',fetchingSky:'하늘 데이터 가져오는 중…',notFound:'위치를 찾을 수 없습니다. 다른 도시나 우편번호를 시도해보세요.',lookupError:'위치를 검색할 수 없습니다. 다시 시도해주세요.',geoNotSupported:'위치 서비스가 지원되지 않습니다.',geoDenied:'위치 접근이 거부되었습니다. 도시나 우편번호를 입력해보세요.',fetchError:'날씨 데이터를 가져올 수 없습니다. 다시 시도해주세요.',noData:'이 날짜의 시간별 데이터가 없습니다.',historical:'과거',forecast:'예보',live:'실시간',daytime:'낮',nighttime:'밤',clearSky:'맑은 하늘',prettyClouds:'예쁜 구름',visibility:'가시거리',conditions:'기상 조건',howScored:'점수 산정 방법',stunning:'환상적',stunningDesc:'최고의 하늘 상태입니다. 카메라를 꺼내세요!',beautiful:'아름다운',beautifulDesc:'멋진 하늘. 맑은 시야와 아름다운 구름.',decent:'괜찮은',decentDesc:'적당한 하늘. 구름이 있지만 올려다볼 만합니다.',meh:'별로',mehDesc:'구름이 많거나 시야가 좋지 않습니다.',gloomy:'우울한',gloomyDesc:'흐리거나 안개가 끼거나 폭풍우가 있는 상태입니다.',methodIntro:'<strong>Sky Palette</strong>는 네 가지 하위 점수의 합산입니다:',methodClear:'<strong>맑은 하늘 (40%)</strong> — 구름 비율. 20–30%가 최고점.',methodClouds:'<strong>예쁜 구름 (25%)</strong> — 높은 고도의 구름은 드라마틱합니다.',methodVis:'<strong>가시거리 (20%)</strong> — 높은 가시거리 = 더 선명한 하늘.',methodCond:'<strong>기상 조건 (15%)</strong> — 비, 안개, 폭풍은 감점.',methodGolden:'<strong>골든아워 보너스</strong> — 일출/일몰 근처 시간에 최대 +10점 추가.',methodSrcLive:'<strong>실시간 & 예보</strong> — Open-Meteo Forecast API',methodSrcRecent:'<strong>최근 과거</strong> — Open-Meteo 과거 모드',methodSrcOld:'<strong>오래된 기록</strong> — Open-Meteo Archive API',methodNoKey:'API 키 불필요. <strong>Open-Meteo</strong> 제공.',dataSources:'데이터 출처:',sunrise:'일출',sunset:'일몰',goldenHour:'골든아워',bestHour:'오늘의 최적 시간',bestHourScore:'스카이 팔레트',next7days:'7일 예보',share:'공유',copyLink:'링크 복사',copied:'복사됨!',recents:'최근 검색',liveView:'주변 하늘 찾는 중',liveNearby:'주변 실시간',forecastLimit:'예보는 최대 16일까지.',historyError:'과거 데이터를 가져올 수 없습니다.',apiError:'API 오류.',weather:{0:'맑음',1:'대체로 맑음',2:'부분 흐림',3:'흐림',45:'안개',48:'서리 안개',51:'가벼운 이슬비',53:'이슬비',55:'강한 이슬비',56:'결빙 이슬비',57:'강한 결빙 이슬비',61:'약한 비',63:'보통 비',65:'강한 비',66:'결빙 비',67:'강한 결빙 비',71:'약한 눈',73:'보통 눈',75:'강한 눈',77:'싸락눈',80:'약한 소나기',81:'보통 소나기',82:'강한 소나기',85:'약한 눈 소나기',86:'강한 눈 소나기',95:'뇌우',96:'우박 동반 뇌우',99:'강한 우박 동반 뇌우'},months:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],days:['일','월','화','수','목','금','토'],at:''},
-ja:{subtitle:'空はどれくらいフォトジェニック？過去・現在・未来。',placeholder:'都市名または郵便番号を入力…',score:'スコア',when:'日時',now:'今',useLocation:'現在地を使用',lookingUp:'場所を検索中…',gettingLocation:'現在地を取得中…',fetchingSky:'空のデータを取得中…',notFound:'場所が見つかりません。',lookupError:'場所を検索できませんでした。',geoNotSupported:'位置情報がサポートされていません。',geoDenied:'位置情報へのアクセスが拒否されました。',fetchError:'天気データを取得できませんでした。',noData:'この日の時間別データがありません。',historical:'過去',forecast:'予報',live:'リアルタイム',daytime:'昼間',nighttime:'夜間',clearSky:'澄んだ空',prettyClouds:'美しい雲',visibility:'視界',conditions:'天候',howScored:'スコアの算出方法',stunning:'圧巻',stunningDesc:'最高の空の状態です。カメラを持って外へ！',beautiful:'美しい',beautifulDesc:'素晴らしい空。澄んだ視界と美しい雲。',decent:'まずまず',decentDesc:'そこそこの空。見上げる価値はあります。',meh:'いまいち',mehDesc:'雲が多いか視界が悪い。',gloomy:'暗い',gloomyDesc:'曇り、霧、または嵐の状態です。',methodIntro:'<strong>Sky Palette</strong>は4つのサブスコアの合成です：',methodClear:'<strong>澄んだ空 (40%)</strong> — 雲量。20–30%が最高点。',methodClouds:'<strong>美しい雲 (25%)</strong> — 高高度の雲はフォトジェニック。',methodVis:'<strong>視界 (20%)</strong> — 高い視界 = クリアな空。',methodCond:'<strong>天候 (15%)</strong> — 雨、霧、嵐はスコアを下げます。',methodGolden:'<strong>ゴールデンアワーボーナス</strong> — 日の出・日の入り前後は最大+10点。',methodSrcLive:'<strong>リアルタイム＆予報</strong> — Open-Meteo Forecast API',methodSrcRecent:'<strong>最近の過去</strong> — Open-Meteo 過去モード',methodSrcOld:'<strong>過去の記録</strong> — Open-Meteo Archive API',methodNoKey:'APIキー不要。<strong>Open-Meteo</strong>から。',dataSources:'データソース：',sunrise:'日の出',sunset:'日の入り',goldenHour:'ゴールデンアワー',bestHour:'今日のベスト時間',bestHourScore:'スカイパレット',next7days:'7日間予報',share:'共有',copyLink:'リンクコピー',copied:'コピー済み！',recents:'最近の検索',liveView:'近くの空を検索中',liveNearby:'近くのライブ',forecastLimit:'予報は最大16日先まで。',historyError:'過去のデータを取得できませんでした。',apiError:'APIエラー。',weather:{0:'快晴',1:'ほぼ快晴',2:'一部曇り',3:'曇り',45:'霧',48:'着氷性霧',51:'弱い霧雨',53:'霧雨',55:'強い霧雨',56:'着氷性霧雨',57:'強い着氷性霧雨',61:'弱い雨',63:'雨',65:'強い雨',66:'着氷性の雨',67:'強い着氷性の雨',71:'弱い雪',73:'雪',75:'強い雪',77:'雪あられ',80:'弱いにわか雨',81:'にわか雨',82:'激しいにわか雨',85:'弱いにわか雪',86:'強いにわか雪',95:'雷雨',96:'雹を伴う雷雨',99:'強い雹を伴う雷雨'},months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],days:['日','月','火','水','木','金','土'],at:''},
-zh:{subtitle:'天空有多上镜？过去、现在、未来。',placeholder:'输入城市或邮编…',score:'评分',when:'时间',now:'现在',useLocation:'使用我的位置',lookingUp:'正在查找位置…',gettingLocation:'正在获取位置…',fetchingSky:'正在获取天空数据…',notFound:'未找到该位置。',lookupError:'无法查找位置，请重试。',geoNotSupported:'不支持地理定位。',geoDenied:'位置访问被拒绝。',fetchError:'无法获取天气数据。',noData:'该日期没有数据。',historical:'历史',forecast:'预报',live:'实时',daytime:'白天',nighttime:'夜晚',clearSky:'晴朗天空',prettyClouds:'美丽云彩',visibility:'能见度',conditions:'天气状况',howScored:'评分方法',stunning:'绝美',stunningDesc:'天空状况极佳。拿起相机！',beautiful:'美丽',beautifulDesc:'天空很棒。清晰视野和美丽云层。',decent:'还不错',decentDesc:'天空尚可。有些云但值得看看。',meh:'一般',mehDesc:'云层较厚或能见度低。',gloomy:'阴沉',gloomyDesc:'阴天、有雾或暴风雨。',methodIntro:'<strong>Sky Palette</strong> 由四个子分数组成：',methodClear:'<strong>晴朗天空 (40%)</strong> — 云量百分比。',methodClouds:'<strong>美丽云彩 (25%)</strong> — 高空云层更上镜。',methodVis:'<strong>能见度 (20%)</strong> — 能见度越高越好。',methodCond:'<strong>天气状况 (15%)</strong> — 雨雾暴风雨减分。',methodGolden:'<strong>黄金时段加分</strong> — 日出日落前后最多加10分。',methodSrcLive:'<strong>实时与预报</strong> — Open-Meteo Forecast API',methodSrcRecent:'<strong>近期历史</strong> — Open-Meteo 历史模式',methodSrcOld:'<strong>更早历史</strong> — Open-Meteo Archive API',methodNoKey:'无需API密钥。数据来自 <strong>Open-Meteo</strong>。',dataSources:'数据来源：',sunrise:'日出',sunset:'日落',goldenHour:'黄金时段',bestHour:'今日最佳时间',bestHourScore:'天空调色板',next7days:'7天预报',share:'分享',copyLink:'复制链接',copied:'已复制！',recents:'最近搜索',liveView:'正在寻找附近天空',liveNearby:'附近实况',forecastLimit:'预报仅提供最多16天。',historyError:'无法获取历史数据。',apiError:'API错误。',weather:{0:'晴',1:'大部晴朗',2:'局部多云',3:'阴天',45:'雾',48:'雾凇',51:'小毛毛雨',53:'毛毛雨',55:'大毛毛雨',56:'冻毛毛雨',57:'大冻毛毛雨',61:'小雨',63:'中雨',65:'大雨',66:'冻雨',67:'大冻雨',71:'小雪',73:'中雪',75:'大雪',77:'雪粒',80:'小阵雨',81:'中阵雨',82:'大阵雨',85:'小阵雪',86:'大阵雪',95:'雷暴',96:'雷暴伴冰雹',99:'雷暴伴大冰雹'},months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],days:['日','一','二','三','四','五','六'],at:''},
-es:{subtitle:'¿Qué tan fotogénico está el cielo? Pasado, presente o futuro.',placeholder:'Ingresa una ciudad o código postal…',score:'Puntaje',when:'Cuándo',now:'Ahora',useLocation:'Usar mi ubicación',lookingUp:'Buscando ubicación…',gettingLocation:'Obteniendo tu ubicación…',fetchingSky:'Obteniendo datos del cielo…',notFound:'Ubicación no encontrada.',lookupError:'No se pudo buscar la ubicación.',geoNotSupported:'Geolocalización no soportada.',geoDenied:'Acceso a ubicación denegado.',fetchError:'No se pudieron obtener datos meteorológicos.',noData:'No hay datos para esta fecha.',historical:'Histórico',forecast:'Pronóstico',live:'En vivo',daytime:'Día',nighttime:'Noche',clearSky:'Cielo despejado',prettyClouds:'Nubes bonitas',visibility:'Visibilidad',conditions:'Condiciones',howScored:'Cómo se calcula',stunning:'Impresionante',stunningDesc:'¡Condiciones excepcionales! Toma tu cámara.',beautiful:'Hermoso',beautifulDesc:'Gran cielo con hermosas nubes.',decent:'Aceptable',decentDesc:'Cielo razonable. Algo de nubes.',meh:'Regular',mehDesc:'Muchas nubes o poca visibilidad.',gloomy:'Sombrío',gloomyDesc:'Nublado, niebla o tormenta.',methodIntro:'<strong>Sky Palette</strong> es un compuesto de cuatro subpuntajes:',methodClear:'<strong>Cielo despejado (40%)</strong> — Porcentaje de nubes.',methodClouds:'<strong>Nubes bonitas (25%)</strong> — Nubes altas son fotogénicas.',methodVis:'<strong>Visibilidad (20%)</strong> — Mayor visibilidad = cielos más nítidos.',methodCond:'<strong>Condiciones (15%)</strong> — Lluvia, niebla reducen el puntaje.',methodGolden:'<strong>Bonificación Hora Dorada</strong> — Hasta +10 puntos cerca del amanecer/atardecer.',methodSrcLive:'<strong>En vivo y pronóstico</strong> — Open-Meteo Forecast API',methodSrcRecent:'<strong>Pasado reciente</strong> — Open-Meteo modo histórico',methodSrcOld:'<strong>Historia antigua</strong> — Open-Meteo Archive API',methodNoKey:'Sin clave API. Datos de <strong>Open-Meteo</strong>.',dataSources:'Fuentes de datos:',sunrise:'Amanecer',sunset:'Atardecer',goldenHour:'Hora Dorada',bestHour:'Mejor Hora Hoy',bestHourScore:'Sky Palette',next7days:'Pronóstico 7 Días',share:'Compartir',copyLink:'Copiar enlace',copied:'¡Copiado!',recents:'Recientes',liveView:'Buscando vista cercana',liveNearby:'En vivo cercano',forecastLimit:'Pronóstico hasta 16 días.',historyError:'No se pudieron obtener datos históricos.',apiError:'Error de API.',weather:{0:'Cielo despejado',1:'Mayormente despejado',2:'Parcialmente nublado',3:'Nublado',45:'Niebla',48:'Niebla con escarcha',51:'Llovizna ligera',53:'Llovizna moderada',55:'Llovizna densa',56:'Llovizna helada',57:'Llovizna helada densa',61:'Lluvia ligera',63:'Lluvia moderada',65:'Lluvia fuerte',66:'Lluvia helada',67:'Lluvia helada fuerte',71:'Nevada ligera',73:'Nevada moderada',75:'Nevada fuerte',77:'Granizo fino',80:'Chubascos ligeros',81:'Chubascos moderados',82:'Chubascos violentos',85:'Chubascos de nieve ligeros',86:'Chubascos de nieve fuertes',95:'Tormenta',96:'Tormenta con granizo',99:'Tormenta con granizo fuerte'},months:['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],days:['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'],at:'a las'}
+en:{subtitle:'How photogenic is the sky? Past, present, or future.',placeholder:'Enter a city or zip code…',score:'Score',when:'When',now:'Now',useLocation:'Use my location',lookingUp:'Looking up location…',gettingLocation:'Getting your location…',fetchingSky:'Fetching sky data…',notFound:'Location not found. Try another city or zip code.',lookupError:'Could not look up location. Please try again.',geoNotSupported:'Geolocation not supported.',geoDenied:'Location access denied. Try typing a city or zip code instead.',fetchError:'Could not fetch weather data. Please try again.',noData:'No hourly data available for this date.',historical:'Historical',forecast:'Forecast',live:'Live',daytime:'Daytime',nighttime:'Nighttime',clearSky:'Clear Sky',prettyClouds:'Pretty Clouds',visibility:'Visibility',conditions:'Conditions',howScored:"How it's scored",stunning:'Stunning',stunningDesc:'Exceptional sky conditions. Grab your camera — this is as good as it gets.',beautiful:'Beautiful',beautifulDesc:'Great sky. Clear views with lovely cloud formations.',decent:'Decent',decentDesc:'Reasonable sky. Some cloud cover but still worth a look up.',meh:'Meh',mehDesc:'Heavy clouds or reduced visibility. The sky is taking a day off.',gloomy:'Gloomy',gloomyDesc:'Not great up there — overcast, foggy, or stormy conditions.',methodIntro:'<strong>Sky Palette</strong> is a composite of four sub-scores:',methodClear:'<strong>Clear Sky (40%)</strong> — Cloud cover percentage. 20–30% scores highest — scattered clouds add visual interest.',methodClouds:'<strong>Pretty Clouds (25%)</strong> — High & mid-altitude clouds are dramatic and photogenic. Low clouds are penalized.',methodVis:'<strong>Visibility (20%)</strong> — Higher visibility = crisper, more vivid skies.',methodCond:'<strong>Conditions (15%)</strong> — Rain, fog, or storms reduce the score.',methodGolden:'<strong>Golden Hour Bonus</strong> — Scores near sunrise/sunset get up to +10 points because golden & blue hour light is the most photogenic.',methodSrcLive:'<strong>Live & forecast</strong> (up to 16 days) — Open-Meteo Forecast API',methodSrcRecent:'<strong>Recent past</strong> (≤3 months) — Open-Meteo Forecast API historical mode',methodSrcOld:'<strong>Older history</strong> (back to 1940) — Open-Meteo Archive API (ERA5)',methodNoKey:'No API key required. All data from <strong>Open-Meteo</strong>.',dataSources:'Data sources:',sunrise:'Sunrise',sunset:'Sunset',goldenHour:'Golden Hour',bestHour:'Best Hour Today',bestHourScore:'Sky Palette',next7days:'7-Day Forecast',share:'Share',copyLink:'Copy Link',copied:'Copied!',recents:'Recents',liveView:'Finding nearby view',liveNearby:'Live nearby',skyNow:'Estimated sky',forecastLimit:'Forecast only available up to 16 days ahead.',historyError:'Could not fetch historical data.',apiError:'API error.',weather:{0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',48:'Rime fog',51:'Light drizzle',53:'Moderate drizzle',55:'Dense drizzle',56:'Freezing drizzle',57:'Dense freezing drizzle',61:'Slight rain',63:'Moderate rain',65:'Heavy rain',66:'Freezing rain',67:'Heavy freezing rain',71:'Slight snow',73:'Moderate snow',75:'Heavy snow',77:'Snow grains',80:'Light rain showers',81:'Moderate rain showers',82:'Violent rain showers',85:'Light snow showers',86:'Heavy snow showers',95:'Thunderstorm',96:'Thunderstorm w/ hail',99:'Thunderstorm w/ heavy hail'},months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],days:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],at:'at'},
+ko:{subtitle:'사진으로 가장 잘 나오는 하늘 찾기',placeholder:'도시 또는 우편번호 입력…',score:'계산',when:'시간',now:'현재 시각',useLocation:'내 위치 사용',lookingUp:'위치 검색 중…',gettingLocation:'위치 확인 중…',fetchingSky:'하늘 데이터 가져오는 중…',notFound:'위치를 찾을 수 없습니다. 다른 도시나 우편번호를 시도해보세요.',lookupError:'위치를 검색할 수 없습니다. 다시 시도해주세요.',geoNotSupported:'위치 서비스가 지원되지 않습니다.',geoDenied:'위치 접근이 거부되었습니다. 도시나 우편번호를 입력해보세요.',fetchError:'날씨 데이터를 가져올 수 없습니다. 다시 시도해주세요.',noData:'이 날짜의 시간별 데이터가 없습니다.',historical:'과거',forecast:'예보',live:'실시간',daytime:'낮',nighttime:'밤',clearSky:'맑은 하늘',prettyClouds:'예쁜 구름',visibility:'가시거리',conditions:'기상 조건',howScored:'점수 산정 방법',stunning:'환상적',stunningDesc:'최고의 하늘 상태입니다. 카메라를 꺼내세요!',beautiful:'아름다운',beautifulDesc:'멋진 하늘. 맑은 시야와 아름다운 구름.',decent:'괜찮은',decentDesc:'적당한 하늘. 구름이 있지만 올려다볼 만합니다.',meh:'별로',mehDesc:'구름이 많거나 시야가 좋지 않습니다.',gloomy:'우울한',gloomyDesc:'흐리거나 안개가 끼거나 폭풍우가 있는 상태입니다.',methodIntro:'<strong>Sky Palette</strong>는 네 가지 하위 점수의 합산입니다:',methodClear:'<strong>맑은 하늘 (40%)</strong> — 구름 비율. 20–30%가 최고점.',methodClouds:'<strong>예쁜 구름 (25%)</strong> — 높은 고도의 구름은 드라마틱합니다.',methodVis:'<strong>가시거리 (20%)</strong> — 높은 가시거리 = 더 선명한 하늘.',methodCond:'<strong>기상 조건 (15%)</strong> — 비, 안개, 폭풍은 감점.',methodGolden:'<strong>골든아워 보너스</strong> — 일출/일몰 근처 시간에 최대 +10점 추가.',methodSrcLive:'<strong>실시간 & 예보</strong> — Open-Meteo Forecast API',methodSrcRecent:'<strong>최근 과거</strong> — Open-Meteo 과거 모드',methodSrcOld:'<strong>오래된 기록</strong> — Open-Meteo Archive API',methodNoKey:'API 키 불필요. <strong>Open-Meteo</strong> 제공.',dataSources:'데이터 출처:',sunrise:'일출',sunset:'일몰',goldenHour:'골든아워',bestHour:'오늘의 최적 시간',bestHourScore:'스카이 팔레트',next7days:'7일 예보',share:'공유',copyLink:'링크 복사',copied:'복사됨!',recents:'최근 검색',liveView:'주변 영상 찾는 중',liveNearby:'주변 실시간',skyNow:'예상 하늘',forecastLimit:'예보는 최대 16일까지.',historyError:'과거 데이터를 가져올 수 없습니다.',apiError:'API 오류.',weather:{0:'맑음',1:'대체로 맑음',2:'부분 흐림',3:'흐림',45:'안개',48:'서리 안개',51:'가벼운 이슬비',53:'이슬비',55:'강한 이슬비',56:'결빙 이슬비',57:'강한 결빙 이슬비',61:'약한 비',63:'보통 비',65:'강한 비',66:'결빙 비',67:'강한 결빙 비',71:'약한 눈',73:'보통 눈',75:'강한 눈',77:'싸락눈',80:'약한 소나기',81:'보통 소나기',82:'강한 소나기',85:'약한 눈 소나기',86:'강한 눈 소나기',95:'뇌우',96:'우박 동반 뇌우',99:'강한 우박 동반 뇌우'},months:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],days:['일','월','화','수','목','금','토'],at:''},
+ja:{subtitle:'空はどれくらいフォトジェニック？過去・現在・未来。',placeholder:'都市名または郵便番号を入力…',score:'スコア',when:'日時',now:'今',useLocation:'現在地を使用',lookingUp:'場所を検索中…',gettingLocation:'現在地を取得中…',fetchingSky:'空のデータを取得中…',notFound:'場所が見つかりません。',lookupError:'場所を検索できませんでした。',geoNotSupported:'位置情報がサポートされていません。',geoDenied:'位置情報へのアクセスが拒否されました。',fetchError:'天気データを取得できませんでした。',noData:'この日の時間別データがありません。',historical:'過去',forecast:'予報',live:'リアルタイム',daytime:'昼間',nighttime:'夜間',clearSky:'澄んだ空',prettyClouds:'美しい雲',visibility:'視界',conditions:'天候',howScored:'スコアの算出方法',stunning:'圧巻',stunningDesc:'最高の空の状態です。カメラを持って外へ！',beautiful:'美しい',beautifulDesc:'素晴らしい空。澄んだ視界と美しい雲。',decent:'まずまず',decentDesc:'そこそこの空。見上げる価値はあります。',meh:'いまいち',mehDesc:'雲が多いか視界が悪い。',gloomy:'暗い',gloomyDesc:'曇り、霧、または嵐の状態です。',methodIntro:'<strong>Sky Palette</strong>は4つのサブスコアの合成です：',methodClear:'<strong>澄んだ空 (40%)</strong> — 雲量。20–30%が最高点。',methodClouds:'<strong>美しい雲 (25%)</strong> — 高高度の雲はフォトジェニック。',methodVis:'<strong>視界 (20%)</strong> — 高い視界 = クリアな空。',methodCond:'<strong>天候 (15%)</strong> — 雨、霧、嵐はスコアを下げます。',methodGolden:'<strong>ゴールデンアワーボーナス</strong> — 日の出・日の入り前後は最大+10点。',methodSrcLive:'<strong>リアルタイム＆予報</strong> — Open-Meteo Forecast API',methodSrcRecent:'<strong>最近の過去</strong> — Open-Meteo 過去モード',methodSrcOld:'<strong>過去の記録</strong> — Open-Meteo Archive API',methodNoKey:'APIキー不要。<strong>Open-Meteo</strong>から。',dataSources:'データソース：',sunrise:'日の出',sunset:'日の入り',goldenHour:'ゴールデンアワー',bestHour:'今日のベスト時間',bestHourScore:'スカイパレット',next7days:'7日間予報',share:'共有',copyLink:'リンクコピー',copied:'コピー済み！',recents:'最近の検索',liveView:'近くの映像を検索中',liveNearby:'近くのライブ',skyNow:'推定空模様',forecastLimit:'予報は最大16日先まで。',historyError:'過去のデータを取得できませんでした。',apiError:'APIエラー。',weather:{0:'快晴',1:'ほぼ快晴',2:'一部曇り',3:'曇り',45:'霧',48:'着氷性霧',51:'弱い霧雨',53:'霧雨',55:'強い霧雨',56:'着氷性霧雨',57:'強い着氷性霧雨',61:'弱い雨',63:'雨',65:'強い雨',66:'着氷性の雨',67:'強い着氷性の雨',71:'弱い雪',73:'雪',75:'強い雪',77:'雪あられ',80:'弱いにわか雨',81:'にわか雨',82:'激しいにわか雨',85:'弱いにわか雪',86:'強いにわか雪',95:'雷雨',96:'雹を伴う雷雨',99:'強い雹を伴う雷雨'},months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],days:['日','月','火','水','木','金','土'],at:''},
+zh:{subtitle:'天空有多上镜？过去、现在、未来。',placeholder:'输入城市或邮编…',score:'评分',when:'时间',now:'现在',useLocation:'使用我的位置',lookingUp:'正在查找位置…',gettingLocation:'正在获取位置…',fetchingSky:'正在获取天空数据…',notFound:'未找到该位置。',lookupError:'无法查找位置，请重试。',geoNotSupported:'不支持地理定位。',geoDenied:'位置访问被拒绝。',fetchError:'无法获取天气数据。',noData:'该日期没有数据。',historical:'历史',forecast:'预报',live:'实时',daytime:'白天',nighttime:'夜晚',clearSky:'晴朗天空',prettyClouds:'美丽云彩',visibility:'能见度',conditions:'天气状况',howScored:'评分方法',stunning:'绝美',stunningDesc:'天空状况极佳。拿起相机！',beautiful:'美丽',beautifulDesc:'天空很棒。清晰视野和美丽云层。',decent:'还不错',decentDesc:'天空尚可。有些云但值得看看。',meh:'一般',mehDesc:'云层较厚或能见度低。',gloomy:'阴沉',gloomyDesc:'阴天、有雾或暴风雨。',methodIntro:'<strong>Sky Palette</strong> 由四个子分数组成：',methodClear:'<strong>晴朗天空 (40%)</strong> — 云量百分比。',methodClouds:'<strong>美丽云彩 (25%)</strong> — 高空云层更上镜。',methodVis:'<strong>能见度 (20%)</strong> — 能见度越高越好。',methodCond:'<strong>天气状况 (15%)</strong> — 雨雾暴风雨减分。',methodGolden:'<strong>黄金时段加分</strong> — 日出日落前后最多加10分。',methodSrcLive:'<strong>实时与预报</strong> — Open-Meteo Forecast API',methodSrcRecent:'<strong>近期历史</strong> — Open-Meteo 历史模式',methodSrcOld:'<strong>更早历史</strong> — Open-Meteo Archive API',methodNoKey:'无需API密钥。数据来自 <strong>Open-Meteo</strong>。',dataSources:'数据来源：',sunrise:'日出',sunset:'日落',goldenHour:'黄金时段',bestHour:'今日最佳时间',bestHourScore:'天空调色板',next7days:'7天预报',share:'分享',copyLink:'复制链接',copied:'已复制！',recents:'最近搜索',liveView:'正在寻找附近画面',liveNearby:'附近实况',skyNow:'预估天空',forecastLimit:'预报仅提供最多16天。',historyError:'无法获取历史数据。',apiError:'API错误。',weather:{0:'晴',1:'大部晴朗',2:'局部多云',3:'阴天',45:'雾',48:'雾凇',51:'小毛毛雨',53:'毛毛雨',55:'大毛毛雨',56:'冻毛毛雨',57:'大冻毛毛雨',61:'小雨',63:'中雨',65:'大雨',66:'冻雨',67:'大冻雨',71:'小雪',73:'中雪',75:'大雪',77:'雪粒',80:'小阵雨',81:'中阵雨',82:'大阵雨',85:'小阵雪',86:'大阵雪',95:'雷暴',96:'雷暴伴冰雹',99:'雷暴伴大冰雹'},months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],days:['日','一','二','三','四','五','六'],at:''},
+es:{subtitle:'¿Qué tan fotogénico está el cielo? Pasado, presente o futuro.',placeholder:'Ingresa una ciudad o código postal…',score:'Puntaje',when:'Cuándo',now:'Ahora',useLocation:'Usar mi ubicación',lookingUp:'Buscando ubicación…',gettingLocation:'Obteniendo tu ubicación…',fetchingSky:'Obteniendo datos del cielo…',notFound:'Ubicación no encontrada.',lookupError:'No se pudo buscar la ubicación.',geoNotSupported:'Geolocalización no soportada.',geoDenied:'Acceso a ubicación denegado.',fetchError:'No se pudieron obtener datos meteorológicos.',noData:'No hay datos para esta fecha.',historical:'Histórico',forecast:'Pronóstico',live:'En vivo',daytime:'Día',nighttime:'Noche',clearSky:'Cielo despejado',prettyClouds:'Nubes bonitas',visibility:'Visibilidad',conditions:'Condiciones',howScored:'Cómo se calcula',stunning:'Impresionante',stunningDesc:'¡Condiciones excepcionales! Toma tu cámara.',beautiful:'Hermoso',beautifulDesc:'Gran cielo con hermosas nubes.',decent:'Aceptable',decentDesc:'Cielo razonable. Algo de nubes.',meh:'Regular',mehDesc:'Muchas nubes o poca visibilidad.',gloomy:'Sombrío',gloomyDesc:'Nublado, niebla o tormenta.',methodIntro:'<strong>Sky Palette</strong> es un compuesto de cuatro subpuntajes:',methodClear:'<strong>Cielo despejado (40%)</strong> — Porcentaje de nubes.',methodClouds:'<strong>Nubes bonitas (25%)</strong> — Nubes altas son fotogénicas.',methodVis:'<strong>Visibilidad (20%)</strong> — Mayor visibilidad = cielos más nítidos.',methodCond:'<strong>Condiciones (15%)</strong> — Lluvia, niebla reducen el puntaje.',methodGolden:'<strong>Bonificación Hora Dorada</strong> — Hasta +10 puntos cerca del amanecer/atardecer.',methodSrcLive:'<strong>En vivo y pronóstico</strong> — Open-Meteo Forecast API',methodSrcRecent:'<strong>Pasado reciente</strong> — Open-Meteo modo histórico',methodSrcOld:'<strong>Historia antigua</strong> — Open-Meteo Archive API',methodNoKey:'Sin clave API. Datos de <strong>Open-Meteo</strong>.',dataSources:'Fuentes de datos:',sunrise:'Amanecer',sunset:'Atardecer',goldenHour:'Hora Dorada',bestHour:'Mejor Hora Hoy',bestHourScore:'Sky Palette',next7days:'Pronóstico 7 Días',share:'Compartir',copyLink:'Copiar enlace',copied:'¡Copiado!',recents:'Recientes',liveView:'Buscando vista cercana',liveNearby:'En vivo cercano',skyNow:'Cielo estimado',forecastLimit:'Pronóstico hasta 16 días.',historyError:'No se pudieron obtener datos históricos.',apiError:'Error de API.',weather:{0:'Cielo despejado',1:'Mayormente despejado',2:'Parcialmente nublado',3:'Nublado',45:'Niebla',48:'Niebla con escarcha',51:'Llovizna ligera',53:'Llovizna moderada',55:'Llovizna densa',56:'Llovizna helada',57:'Llovizna helada densa',61:'Lluvia ligera',63:'Lluvia moderada',65:'Lluvia fuerte',66:'Lluvia helada',67:'Lluvia helada fuerte',71:'Nevada ligera',73:'Nevada moderada',75:'Nevada fuerte',77:'Granizo fino',80:'Chubascos ligeros',81:'Chubascos moderados',82:'Chubascos violentos',85:'Chubascos de nieve ligeros',86:'Chubascos de nieve fuertes',95:'Tormenta',96:'Tormenta con granizo',99:'Tormenta con granizo fuerte'},months:['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],days:['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'],at:'a las'}
 };
 
 function t(k){return i18n[lang][k]||i18n.en[k]||k}
@@ -392,11 +397,54 @@ function computeFromHourly(h,idx){
 }
 
 function calcScore(cc,vis,wc,isDay,aH,aM,aL){
+  // 1. Clear Sky (40%) — unchanged
   let cs;if(cc<=10)cs=95;else if(cc<=30)cs=100;else if(cc<=50)cs=80;else if(cc<=70)cs=50;else if(cc<=85)cs=25;else cs=10;
+
+  // 2. Pretty Clouds (25%) — unchanged
   const hb=Math.min(aH*1.2,100),mb=Math.min(aM*.8,80),lp=aL*.6;
   let pc=Math.max(0,Math.min(100,(hb*.5+mb*.5)-lp));if(cc<5)pc=Math.min(pc,20);
-  let vs;if(vis>=20)vs=100;else if(vis>=10)vs=85;else if(vis>=5)vs=60;else if(vis>=2)vs=30;else vs=10;
-  let co=100;if([0,1].includes(wc))co=100;else if(wc===2)co=85;else if(wc===3)co=55;else if([45,48].includes(wc))co=20;else if([51,53,55,56,57,61,63,65,66,67].includes(wc))co=25;else if([71,73,75,77].includes(wc))co=35;else if([80,81,82].includes(wc))co=20;else if([85,86].includes(wc))co=30;else if([95,96,99].includes(wc))co=15;
+
+  // 3. Visibility (20%) — much more granular, linear interpolation
+  // Most forecasts report 20-50km; only truly exceptional clarity should score 90+
+  let vs;
+  if(vis>=50)vs=100;       // crystal clear, rare
+  else if(vis>=40)vs=92;
+  else if(vis>=30)vs=82;
+  else if(vis>=24)vs=72;   // typical "good" day — no longer 100
+  else if(vis>=20)vs=65;
+  else if(vis>=15)vs=55;
+  else if(vis>=10)vs=45;
+  else if(vis>=7)vs=35;
+  else if(vis>=5)vs=25;
+  else if(vis>=2)vs=15;
+  else vs=5;
+
+  // 4. Conditions (15%) — more nuanced, humidity/wind factor
+  // Code 0 (clear) is not automatically 100 — reserve top scores for truly perfect conditions
+  let co;
+  if(wc===0)co=90;          // clear sky — great but save 100 for extraordinary
+  else if(wc===1)co=82;     // mainly clear — slight haze possible
+  else if(wc===2)co=70;     // partly cloudy — decent
+  else if(wc===3)co=40;     // overcast — significant penalty
+  else if([45,48].includes(wc))co=15;  // fog — terrible for photos
+  else if(wc===51)co=30;    // light drizzle — not great but salvageable
+  else if(wc===53)co=20;    // moderate drizzle
+  else if([55,56,57].includes(wc))co=12; // dense/freezing drizzle
+  else if(wc===61)co=25;    // slight rain
+  else if(wc===63)co=15;    // moderate rain
+  else if([65,66,67].includes(wc))co=8;  // heavy/freezing rain
+  else if(wc===71)co=45;    // slight snow — can be quite photogenic
+  else if(wc===73)co=35;    // moderate snow
+  else if([75,77].includes(wc))co=25;    // heavy snow/grains
+  else if(wc===80)co=22;    // slight rain showers
+  else if(wc===81)co=15;    // moderate rain showers
+  else if(wc===82)co=8;     // violent rain showers
+  else if(wc===85)co=35;    // light snow showers — pretty
+  else if(wc===86)co=20;    // heavy snow showers
+  else if(wc===95)co=12;    // thunderstorm
+  else if([96,99].includes(wc))co=5;     // thunderstorm w/ hail
+  else co=50;               // unknown code
+
   const total=Math.round(cs*.4+pc*.25+vs*.2+co*.15);
   return{total:Math.max(0,Math.min(100,total)),clearSky:Math.round(cs),prettyClouds:Math.round(pc),visibility:Math.round(vs),conditions:Math.round(co),raw:{cloudCover:cc,visibilityKm:Math.round(vis),weatherCode:wc,isDay,avgHigh:Math.round(aH),avgMid:Math.round(aM),avgLow:Math.round(aL)}};
 }
@@ -512,6 +560,7 @@ function renderResult(data,name,lat,lon,targetDate,mode,useCurrent){
         <div class="sun-item"><div class="sun-icon">🌅</div><div class="sun-label">${t('sunrise')}</div><div class="sun-time">${fmtTime(sunrise)}</div></div>
         <div class="sun-item"><div class="sun-icon">🌇</div><div class="sun-label">${t('sunset')}</div><div class="sun-time">${fmtTime(sunset)}</div></div>
       </div>`:''}
+      <div id="skyVisual"></div>
       <div id="webcamContainer"></div>
       ${bestHourHTML}
       ${stripHTML}
@@ -549,8 +598,147 @@ function renderResult(data,name,lat,lon,targetDate,mode,useCurrent){
     });
   });
 
-  // Fetch nearby webcam
+  // Generate sky visual & fetch webcam
+  generateSkyVisual(scores, sunrise, sunset, targetDate);
   fetchWebcam(lat,lon);
+}
+
+/* ========== Generated Sky Visual ========== */
+function generateSkyVisual(scores, sunrise, sunset, targetDate) {
+  const container = $('skyVisual');
+  if (!container) return;
+
+  const hour = targetDate.getHours() + targetDate.getMinutes() / 60;
+  const isDay = scores.raw.isDay;
+  const cc = scores.raw.cloudCover;
+  const wc = scores.raw.weatherCode;
+  const srH = sunrise ? new Date(sunrise).getHours() + new Date(sunrise).getMinutes() / 60 : 6;
+  const ssH = sunset ? new Date(sunset).getHours() + new Date(sunset).getMinutes() / 60 : 18;
+
+  // Sky gradient based on time of day
+  let skyTop, skyMid, skyBot;
+  const distSR = Math.abs(hour - srH);
+  const distSS = Math.abs(hour - ssH);
+  const nearGolden = Math.min(distSR, distSS);
+
+  if (!isDay) {
+    // Night
+    skyTop = '#0a0e27'; skyMid = '#111a3a'; skyBot = '#1a2344';
+    if (nearGolden < 1.5) { // twilight
+      skyTop = '#1a1a3e'; skyMid = '#2d2255'; skyBot = '#4a3060';
+    }
+  } else if (nearGolden < 0.5) {
+    // Deep golden hour
+    skyTop = '#1e3a5f'; skyMid = '#e8734a'; skyBot = '#f5c040';
+  } else if (nearGolden < 1) {
+    // Golden hour
+    skyTop = '#2a5a8f'; skyMid = '#d4845a'; skyBot = '#f0a848';
+  } else if (nearGolden < 1.5) {
+    // Near golden
+    skyTop = '#3a6fa0'; skyMid = '#8aacc0'; skyBot = '#ddb870';
+  } else {
+    // Regular daytime
+    if (cc > 80) { skyTop = '#6a7a88'; skyMid = '#8a9aa8'; skyBot = '#a8b4be'; }
+    else if (cc > 50) { skyTop = '#5a8ab0'; skyMid = '#88afc8'; skyBot = '#b8d0dd'; }
+    else { skyTop = '#2575c7'; skyMid = '#56a0e0'; skyBot = '#87ceeb'; }
+  }
+
+  // Generate clouds
+  let cloudsHTML = '';
+  const cloudOpacity = Math.min(cc / 100, 0.95);
+  const numClouds = Math.floor(cc / 12) + 1;
+
+  // Cloud color based on time
+  let cloudFill = isDay ? '#ffffff' : '#2a2a40';
+  if (nearGolden < 1) cloudFill = isDay ? '#f0c8a0' : '#4a3050';
+  else if (nearGolden < 1.5) cloudFill = isDay ? '#e8ddd0' : '#383050';
+  if (cc > 80 && isDay) cloudFill = '#c8c8ce';
+
+  // High clouds (wispy, translucent)
+  if (scores.raw.avgHigh > 15) {
+    const hOpacity = Math.min(scores.raw.avgHigh / 100, 0.5);
+    for (let i = 0; i < 3; i++) {
+      const x = 50 + i * 200 + Math.random() * 60;
+      const y = 20 + Math.random() * 30;
+      cloudsHTML += `<ellipse cx="${x}" cy="${y}" rx="${80 + Math.random()*60}" ry="${6 + Math.random()*4}" fill="${cloudFill}" opacity="${hOpacity}" />`;
+    }
+  }
+
+  // Mid clouds
+  if (scores.raw.avgMid > 15) {
+    const mOpacity = Math.min(scores.raw.avgMid / 100, 0.7);
+    for (let i = 0; i < Math.min(numClouds, 4); i++) {
+      const x = 30 + i * 160 + Math.random() * 80;
+      const y = 55 + Math.random() * 35;
+      const rx = 50 + Math.random() * 70;
+      const ry = 18 + Math.random() * 12;
+      cloudsHTML += `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${cloudFill}" opacity="${mOpacity}" />`;
+      cloudsHTML += `<ellipse cx="${x + rx * 0.4}" cy="${y - ry * 0.3}" rx="${rx * 0.7}" ry="${ry * 0.8}" fill="${cloudFill}" opacity="${mOpacity * 0.8}" />`;
+    }
+  }
+
+  // Low clouds (thick, opaque)
+  if (scores.raw.avgLow > 15) {
+    const lOpacity = Math.min(scores.raw.avgLow / 100, 0.85);
+    const lowFill = isDay ? (cc > 70 ? '#b0b0b8' : '#d8d8e0') : '#1e1e30';
+    for (let i = 0; i < Math.min(numClouds, 5); i++) {
+      const x = -20 + i * 140 + Math.random() * 60;
+      const y = 100 + Math.random() * 50;
+      const rx = 70 + Math.random() * 80;
+      const ry = 22 + Math.random() * 15;
+      cloudsHTML += `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${lowFill}" opacity="${lOpacity}" />`;
+      cloudsHTML += `<ellipse cx="${x - 30}" cy="${y + 5}" rx="${rx * 0.6}" ry="${ry * 0.9}" fill="${lowFill}" opacity="${lOpacity * 0.9}" />`;
+    }
+  }
+
+  // Sun or moon
+  let celestialHTML = '';
+  if (isDay && cc < 70) {
+    const sunY = nearGolden < 1 ? 130 : nearGolden < 2 ? 80 : 45;
+    const sunColor = nearGolden < 1 ? '#f5c040' : '#ffe566';
+    const glowColor = nearGolden < 1 ? 'rgba(245,192,64,0.3)' : 'rgba(255,229,102,0.2)';
+    celestialHTML = `<circle cx="500" cy="${sunY}" r="28" fill="${sunColor}" /><circle cx="500" cy="${sunY}" r="50" fill="${glowColor}" />`;
+  } else if (!isDay && cc < 60) {
+    celestialHTML = `<circle cx="480" cy="40" r="18" fill="#e8e8f0" opacity="0.9" /><circle cx="472" cy="35" r="16" fill="${skyTop}" />`;
+    // Stars
+    for (let i = 0; i < 15; i++) {
+      const sx = Math.random() * 640, sy = Math.random() * 120;
+      const so = 0.3 + Math.random() * 0.6;
+      celestialHTML += `<circle cx="${sx}" cy="${sy}" r="${0.8 + Math.random()}" fill="#fff" opacity="${so}" />`;
+    }
+  }
+
+  // Rain/snow
+  let precipHTML = '';
+  if ([51,53,55,56,57,61,63,65,66,67,80,81,82].includes(wc)) {
+    for (let i = 0; i < 20; i++) {
+      const x = Math.random() * 640, y = 80 + Math.random() * 80;
+      precipHTML += `<line x1="${x}" y1="${y}" x2="${x - 3}" y2="${y + 12}" stroke="rgba(180,200,220,0.5)" stroke-width="1.5" />`;
+    }
+  } else if ([71,73,75,77,85,86].includes(wc)) {
+    for (let i = 0; i < 15; i++) {
+      const x = Math.random() * 640, y = 80 + Math.random() * 80;
+      precipHTML += `<circle cx="${x}" cy="${y}" r="2.5" fill="rgba(220,230,240,0.6)" />`;
+    }
+  }
+
+  container.innerHTML = `
+    <div class="sky-visual">
+      <svg viewBox="0 0 640 160" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${skyTop}" />
+            <stop offset="50%" stop-color="${skyMid}" />
+            <stop offset="100%" stop-color="${skyBot}" />
+          </linearGradient>
+        </defs>
+        <rect width="640" height="160" fill="url(#skyGrad)" />
+        ${celestialHTML}
+        ${cloudsHTML}
+        ${precipHTML}
+      </svg>
+      <div class="sky-visual-label">${t('skyNow')}</div>
+    </div>`;
 }
 
 /* ========== Webcam ========== */
