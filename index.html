@@ -561,21 +561,34 @@ async function fetchWebcam(lat,lon){
   if(!container)return;
   container.innerHTML=`<div class="webcam-loading"><span class="spinner"></span>${t('liveView')}…</div>`;
   try{
-    const res=await fetch(`https://api.windy.com/webcams/api/v3/webcams?lang=en&limit=1&offset=0&nearby=${lat},${lon},50&include=images,location,urls`,{
-      headers:{'X-WINDY-API-KEY':WINDY_KEY}
+    const url=`https://api.windy.com/webcams/api/v3/webcams?lang=en&limit=1&offset=0&nearby=${lat},${lon},50&include=images,location,urls`;
+    const res=await fetch(url,{
+      headers:{'x-windy-api-key':WINDY_KEY}
     });
-    const data=await res.json();
-    if(!data||!data.length){container.innerHTML='';return;}
-    const cam=data[0];
-    const imgUrl=cam.images?.current?.preview||cam.images?.current?.thumbnail||cam.images?.current?.icon||'';
-    const city=cam.location?.city||'';
-    const country=cam.location?.country||'';
+    if(!res.ok){console.log('Webcam API error:',res.status,res.statusText);container.innerHTML='';return;}
+    const raw=await res.json();
+    console.log('Webcam API response:',raw);
+
+    // V3 can return array directly or wrapped in object
+    const webcams=Array.isArray(raw)?raw:raw.webcams||raw.result?.webcams||[];
+    if(!webcams.length){container.innerHTML='';return;}
+
+    const cam=webcams[0];
+    const images=cam.images||{};
+    const current=images.current||{};
+    const imgUrl=current.preview||current.thumbnail||current.icon||current.desktop||current.mobile||'';
+    const loc=cam.location||{};
+    const city=loc.city||'';
+    const country=loc.country||'';
     const locLabel=[city,country].filter(Boolean).join(', ');
-    const viewUrl=cam.urls?.detail||`https://www.windy.com/webcams/${cam.webcamId}`;
-    const dist=getDistKm(lat,lon,cam.location?.latitude,cam.location?.longitude);
+    const urls=cam.urls||{};
+    const viewUrl=urls.detail||`https://www.windy.com/webcams/${cam.webcamId||cam.id||''}`;
+    const camLat=loc.latitude||loc.lat||0;
+    const camLon=loc.longitude||loc.lon||0;
+    const dist=getDistKm(lat,lon,camLat,camLon);
     const distLabel=dist<1?`${Math.round(dist*1000)}m`:`${dist.toFixed(1)}km`;
 
-    if(!imgUrl){container.innerHTML='';return;}
+    if(!imgUrl){console.log('No webcam image URL found',cam);container.innerHTML='';return;}
 
     container.innerHTML=`
       <div class="webcam-section">
@@ -589,7 +602,7 @@ async function fetchWebcam(lat,lon){
           <a class="webcam-link" href="${viewUrl}" target="_blank" rel="noopener">Windy ↗</a>
         </div>
       </div>`;
-  }catch(e){container.innerHTML='';console.log('Webcam fetch failed',e);}
+  }catch(e){container.innerHTML='';console.log('Webcam fetch failed:',e);}
 }
 
 function getDistKm(lat1,lon1,lat2,lon2){
