@@ -12,6 +12,15 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Sky Palette — How Photogenic Is the Sky?">
 <meta name="twitter:description" content="Rate the sky anywhere in the world on a 0–100 scale. Check clear skies, cloud beauty, visibility, and golden hour — past, present, or future.">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#3B6BCC">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Sky Palette">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -829,6 +838,8 @@ function setBackground(score,isDay){
 }
 
 function resetBackground(){const r=document.documentElement;document.body.style.background='';r.style.setProperty('--text','#1A1A1A');r.style.setProperty('--text-muted','#7A7A7A');r.style.setProperty('--card','#FFFFFF');r.style.setProperty('--border','#E8E5E0');r.style.setProperty('--btn-bg','#1A1A1A');r.style.setProperty('--btn-text','#F6F4F0');r.style.setProperty('--metric-bg','#F0EDE8');}
+
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').catch(()=>{});});}
 </script>
 </body>
 </html>

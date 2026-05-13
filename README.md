@@ -97,11 +97,55 @@ https://YOUR_USERNAME.github.io/sky-score/
 
 ```
 sky-score/
-├── index.html    ← entire app (single file)
-└── README.md     ← this file
+├── index.html              ← the app (single self-contained file)
+├── manifest.webmanifest    ← PWA manifest
+├── sw.js                   ← service worker (offline + API caching)
+├── icon.svg                ← vector source for app icon
+├── icon-maskable.svg       ← maskable variant (Android adaptive)
+├── icons/                  ← rasterized PWA icons + Apple splash screens
+├── assets/                 ← @capacitor/assets source images
+├── capacitor.config.json   ← Capacitor app config
+├── package.json            ← Node deps for Capacitor wrapper
+├── scripts/build-web.js    ← copies static site → www/ for Capacitor
+├── ios/                    ← generated Xcode project (from `cap add ios`)
+└── android/                ← generated Android Studio project
 ```
 
-No build tools. No `node_modules`. No framework. Just one self-contained HTML file with inline CSS and JavaScript.
+The web app is still a single self-contained HTML file. The Node/Capacitor side only exists to package it as native iOS/Android apps — you can ignore it entirely if you only care about the web/PWA.
+
+## App Version (PWA + Capacitor)
+
+The site is also a **Progressive Web App**. On iOS Safari or Android Chrome, tap "Add to Home Screen" to install — it runs full-screen with offline support.
+
+For native App Store / Play Store builds, this repo ships with a Capacitor wrapper.
+
+### Prerequisites
+- Node 18+ (for `npm install`)
+- Xcode + CocoaPods (`brew install cocoapods`) — iOS builds
+- Android Studio — Android builds
+
+### Build & Run
+
+```bash
+npm install              # one-time
+npm run sync             # copy web assets → www/, sync into ios/ + android/
+npm run ios              # opens Xcode → Run on simulator/device
+npm run android          # opens Android Studio → Run
+```
+
+To regenerate icons / splash screens after editing `assets/icon.png`:
+
+```bash
+npx @capacitor/assets generate \
+  --iconBackgroundColor '#7BB7E5' \
+  --iconBackgroundColorDark '#1A2A3F' \
+  --splashBackgroundColor '#F6F4F0' \
+  --splashBackgroundColorDark '#1A1A1A'
+```
+
+### App Identity
+- **Name:** Sky Palette
+- **Bundle ID:** `today.howsthesky.app`
 
 ## Browser Support
 

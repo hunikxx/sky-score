@@ -1,0 +1,19 @@
+{
+  "name": "Sky Palette",
+  "short_name": "Sky Palette",
+  "description": "How photogenic is the sky right now? Rate the sky 0–100 anywhere in the world.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F6F4F0",
+  "theme_color": "#3B6BCC",
+  "lang": "en",
+  "categories": ["weather", "lifestyle", "photo"],
+  "icons": [
+    {"src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"},
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

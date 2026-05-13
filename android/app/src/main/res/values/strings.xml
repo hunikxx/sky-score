@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Sky Palette</string>
+    <string name="title_activity_main">Sky Palette</string>
+    <string name="package_name">today.howsthesky.app</string>
+    <string name="custom_url_scheme">today.howsthesky.app</string>
+</resources>
