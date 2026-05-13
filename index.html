@@ -397,35 +397,44 @@ function computeFromHourly(h,idx){
 }
 
 function calcScore(cc,vis,wc,isDay,aH,aM,aL){
-  // 1. Clear Sky (40%) — unchanged
-  let cs;if(cc<=10)cs=95;else if(cc<=30)cs=100;else if(cc<=50)cs=80;else if(cc<=70)cs=50;else if(cc<=85)cs=25;else cs=10;
+  // 1. Clear Sky (40%) — narrow peak at 13–28% cloud, real penalty for bald-blue
+  let cs;
+  if(cc<=5)       cs=65;   // bald blue — boring
+  else if(cc<=12) cs=82;   // a few wisps
+  else if(cc<=20) cs=95;
+  else if(cc<=28) cs=100;  // peak — scattered clouds
+  else if(cc<=40) cs=82;
+  else if(cc<=55) cs=58;
+  else if(cc<=70) cs=35;
+  else if(cc<=85) cs=18;
+  else            cs=5;    // overcast
 
-  // 2. Pretty Clouds (25%) — unchanged
-  const hb=Math.min(aH*1.2,100),mb=Math.min(aM*.8,80),lp=aL*.6;
-  let pc=Math.max(0,Math.min(100,(hb*.5+mb*.5)-lp));if(cc<5)pc=Math.min(pc,20);
+  // 2. Pretty Clouds (25%) — heavier low-cloud penalty, tighter bald-sky cap
+  const hb=Math.min(aH*1.2,100),mb=Math.min(aM*.8,80),lp=aL*.85;
+  let pc=Math.max(0,Math.min(100,(hb*.5+mb*.5)-lp));if(cc<5)pc=Math.min(pc,10);
 
-  // 3. Visibility (20%) — much more granular, linear interpolation
+  // 3. Visibility (20%) — slower climb at the top so 100 is rare
   // Most forecasts report 20-50km; only truly exceptional clarity should score 90+
   let vs;
-  if(vis>=50)vs=100;       // crystal clear, rare
-  else if(vis>=40)vs=92;
-  else if(vis>=30)vs=82;
-  else if(vis>=24)vs=72;   // typical "good" day — no longer 100
-  else if(vis>=20)vs=65;
-  else if(vis>=15)vs=55;
-  else if(vis>=10)vs=45;
-  else if(vis>=7)vs=35;
-  else if(vis>=5)vs=25;
-  else if(vis>=2)vs=15;
-  else vs=5;
+  if(vis>=60)vs=100;       // crystal clear, rare
+  else if(vis>=45)vs=90;
+  else if(vis>=35)vs=80;
+  else if(vis>=24)vs=68;   // typical "good" day
+  else if(vis>=20)vs=60;
+  else if(vis>=15)vs=50;
+  else if(vis>=10)vs=40;
+  else if(vis>=7)vs=30;
+  else if(vis>=5)vs=22;
+  else if(vis>=2)vs=12;
+  else vs=4;
 
   // 4. Conditions (15%) — more nuanced, humidity/wind factor
   // Code 0 (clear) is not automatically 100 — reserve top scores for truly perfect conditions
   let co;
-  if(wc===0)co=90;          // clear sky — great but save 100 for extraordinary
-  else if(wc===1)co=82;     // mainly clear — slight haze possible
-  else if(wc===2)co=70;     // partly cloudy — decent
-  else if(wc===3)co=40;     // overcast — significant penalty
+  if(wc===0)co=85;          // clear sky — great but save 100 for extraordinary
+  else if(wc===1)co=75;     // mainly clear — slight haze possible
+  else if(wc===2)co=65;     // partly cloudy — decent
+  else if(wc===3)co=35;     // overcast — significant penalty
   else if([45,48].includes(wc))co=15;  // fog — terrible for photos
   else if(wc===51)co=30;    // light drizzle — not great but salvageable
   else if(wc===53)co=20;    // moderate drizzle
