@@ -369,11 +369,11 @@ function getTimeMode(target){const dh=(target-new Date())/36e5;if(Math.abs(dh)<1
 async function fetchWeather(lat,lon,name){
   showStatus(t('fetchingSky'));
   const target=getSelectedDateTime(),mode=getTimeMode(target),dateStr=localDateStr(target);
-  const hVars='cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,visibility,weather_code,is_day';
+  const hVars='cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,visibility,weather_code,is_day,relative_humidity_2m,sunshine_duration';
   try{
     let data;
     if(mode==='now'){
-      const p=`latitude=${lat}&longitude=${lon}&current=cloud_cover,weather_code,visibility,is_day&hourly=${hVars}&daily=sunrise,sunset&forecast_days=7&timezone=auto`;
+      const p=`latitude=${lat}&longitude=${lon}&current=cloud_cover,weather_code,visibility,is_day,relative_humidity_2m,sunshine_duration&hourly=${hVars}&daily=sunrise,sunset&forecast_days=7&timezone=auto`;
       data=await fetch(`${FORECAST_URL}?${p}`).then(r=>r.json());
       if(data.error)return showError(data.reason||t('apiError'));
       return renderResult(data,name,lat,lon,target,mode,true);
@@ -396,16 +396,16 @@ async function fetchWeather(lat,lon,name){
 }
 
 /* ========== Scoring ========== */
-function computeFromCurrent(d){const c=d.current,h=d.hourly;return calcScore(c.cloud_cover,c.visibility/1000,c.weather_code,c.is_day,avg(h.cloud_cover_high||[0]),avg(h.cloud_cover_mid||[0]),avg(h.cloud_cover_low||[0]));}
+function computeFromCurrent(d){const c=d.current,h=d.hourly;return calcScore(c.cloud_cover,c.visibility/1000,c.weather_code,c.is_day,avg(h.cloud_cover_high||[0]),avg(h.cloud_cover_mid||[0]),avg(h.cloud_cover_low||[0]),c.relative_humidity_2m,c.sunshine_duration);}
 
 function computeFromHourly(h,idx){
   const s=i=>Math.max(0,Math.min(i,h.cloud_cover.length-1));
   const w0=s(idx-2),w1=s(idx+3);
   const sl=a=>{if(!a)return[0];const x=a.slice(w0,w1+1);return x.length?x:[0]};
-  return calcScore(h.cloud_cover[s(idx)],(h.visibility?h.visibility[s(idx)]:24000)/1000,h.weather_code[s(idx)],h.is_day?h.is_day[s(idx)]:1,avg(sl(h.cloud_cover_high)),avg(sl(h.cloud_cover_mid)),avg(sl(h.cloud_cover_low)));
+  return calcScore(h.cloud_cover[s(idx)],(h.visibility?h.visibility[s(idx)]:24000)/1000,h.weather_code[s(idx)],h.is_day?h.is_day[s(idx)]:1,avg(sl(h.cloud_cover_high)),avg(sl(h.cloud_cover_mid)),avg(sl(h.cloud_cover_low)),h.relative_humidity_2m?h.relative_humidity_2m[s(idx)]:null,h.sunshine_duration?h.sunshine_duration[s(idx)]:null);
 }
 
-function calcScore(cc,vis,wc,isDay,aH,aM,aL){
+function calcScore(cc,vis,wc,isDay,aH,aM,aL,rh,sunSec){
   // 1. Clear Sky (40%) — narrow peak at 13–28% cloud, real penalty for bald-blue
   let cs;
   if(cc<=5)       cs=65;   // bald blue — boring
@@ -463,8 +463,28 @@ function calcScore(cc,vis,wc,isDay,aH,aM,aL){
   else if([96,99].includes(wc))co=5;     // thunderstorm w/ hail
   else co=50;               // unknown code
 
+  // Humidity dampener on Visibility — high RH = haze, milky sky
+  if(rh!=null){
+    if(rh>=90)vs*=0.65;
+    else if(rh>=80)vs*=0.75;
+    else if(rh>=65)vs*=0.85;
+    else if(rh>=50)vs*=0.95;
+  }
+
+  // Sunshine sanity check on Clear Sky — if cloud cover claims clear but no sun reaches the ground,
+  // something the cover var missed (haze/fog/smoke) is obscuring the sky.
+  if(isDay&&sunSec!=null&&cc<=35){
+    const expected=(1-cc/100)*3600;
+    if(expected>=600){
+      const ratio=sunSec/expected;
+      if(ratio<0.3)cs*=0.6;
+      else if(ratio<0.6)cs*=0.78;
+      else if(ratio<0.85)cs*=0.92;
+    }
+  }
+
   const total=Math.round(cs*.4+pc*.25+vs*.2+co*.15);
-  return{total:Math.max(0,Math.min(100,total)),clearSky:Math.round(cs),prettyClouds:Math.round(pc),visibility:Math.round(vs),conditions:Math.round(co),raw:{cloudCover:cc,visibilityKm:Math.round(vis),weatherCode:wc,isDay,avgHigh:Math.round(aH),avgMid:Math.round(aM),avgLow:Math.round(aL)}};
+  return{total:Math.max(0,Math.min(100,total)),clearSky:Math.round(cs),prettyClouds:Math.round(pc),visibility:Math.round(vs),conditions:Math.round(co),raw:{cloudCover:cc,visibilityKm:Math.round(vis),weatherCode:wc,isDay,avgHigh:Math.round(aH),avgMid:Math.round(aM),avgLow:Math.round(aL),humidity:rh!=null?Math.round(rh):null,sunshineSec:sunSec!=null?Math.round(sunSec):null}};
 }
 
 function applyGoldenBonus(score,hour,sunrise,sunset){

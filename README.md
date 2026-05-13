@@ -31,6 +31,15 @@ Sky Score is a weighted composite of four sub-scores, each rated 0–100:
 Sky Score = (ClearSky × 0.40) + (PrettyClouds × 0.25) + (Visibility × 0.20) + (Conditions × 0.15)
 ```
 
+### Modifiers
+
+Two reality-checks are applied before the four sub-scores are combined:
+
+- **Humidity dampener** — high relative humidity means haze and milky sky. Visibility is multiplied by 0.95 / 0.85 / 0.75 / 0.65 as RH crosses 50% / 65% / 80% / 90%.
+- **Sunshine sanity check** — if reported cloud cover is low (≤ 35%) but `sunshine_duration` shows the ground is in shadow, something the cloud-cover variable missed (haze, fog, smoke) is obscuring the sky. Clear Sky is scaled down 0.92 / 0.78 / 0.6 as the actual-vs-expected sunshine ratio falls below 0.85 / 0.6 / 0.3.
+
+A golden-hour bonus is then added on top: up to +10 points within 1h of sunrise/sunset.
+
 ### Score Tiers
 
 | Score | Verdict | Description |
